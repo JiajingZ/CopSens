@@ -1,0 +1,24 @@
+Package: CopSens
+Type: Package
+Title: Copula-based Sensitivity Analysis for Observational Causal Inference
+Version: 0.1.0
+Authors@R: c(
+    person("Jiajing", "Zheng", email = "jzheng@pstat.ucsb.edu", role = c("aut", "cre")),
+    person("Alexander", "Franks", email = "afranks@pstat.ucsb.edu", role = "aut"),
+    person("Alex", "D'Amour", email = "damour@google.com", role = "ctb")
+    )
+Author: Jiajing Zheng [aut, cre],
+  Alexander Franks [aut]
+  Alex D'Amour [ctb]
+Maintainer: Jiajing Zheng <jzheng@pstat.ucsb.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 3.6.0),
+    tidyverse (>= 1.3.0)
+Imports:
+    pcaMethods (>= 1.78.0)
