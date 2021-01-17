@@ -29,8 +29,8 @@ May contain a single or multiple treatments in rows.}
 
 \item{gamma}{a vector specifying the direction of sensitivity parameters.}
 
-\item{R2}{an optional scalar specifying the proportion of residual variance in outcome given the treatment that
-can be explained by confounders, which determines the magnitude of sensitivity parameters.}
+\item{R2}{an optional scalar or vector specifying the proportion of residual variance in outcome given the
+treatment that can be explained by confounders, which determines the magnitude of sensitivity parameters.}
 
 \item{mu_y_t}{an optional scalar or vector that contains naive estimates of treatment effects
 ignoring confounding.}
@@ -65,7 +65,7 @@ tr <- subset(GaussianT_BinaryY, select = -c(y))
 t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
 est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-                     gamma = c(1.27, -0.28, 0), R2 = 1)
+                     gamma = c(1.27, -0.28, 0),R2 = c(0.5, 0.7))
 rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
 plot_estimates(rr_df)
 }

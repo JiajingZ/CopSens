@@ -26,7 +26,7 @@ with latent variables in columns.}
 
 \item{sigma_y_t}{Scalar of the standard deviation of outcome conditional on treatments.}
 
-\item{penalty_weight}{scalar specifying the penalty weight when constraints on \eqn{R^2} are placed.}
+\item{penalty_weight}{scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.}
 
 \item{gamma0}{An optional vector with initial values of the sensitivity parameters to be optimized over.}
 

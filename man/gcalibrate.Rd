@@ -16,6 +16,7 @@ gcalibrate(
   cov_u_t = NULL,
   R2 = 1,
   gamma = NULL,
+  penalty_weight = 0,
   ...
 )
 }
@@ -46,10 +47,13 @@ with latent variables in columns.}
 
 \item{cov_u_t}{an optional covariance matrix of confounders conditional on treatments.}
 
-\item{R2}{an optional scalar specifying the proportion of residual variance in outcome given the treatment that
-can be explained by confounders.}
+\item{R2}{an optional scalar or vector specifying the proportion of residual variance in outcome given the
+treatment that can be explained by confounders.}
 
 \item{gamma}{sensitivity parameter vector. Must be given when \code{calitype = "null"}.}
+
+\item{penalty_weight}{an optional scalar or vector specifying the penalty weight for \eqn{R^2} to place
+constraints on its magnitude. By default, \code{penalty_weight = 0}.}
 
 \item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 \code{\link{get_opt_gamma}}.}
@@ -69,7 +73,7 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 # worst-case calibration #
 est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
-                      calitype = "worstcase")
+                      calitype = "worstcase", R2 = c(0.6, 1))
 plot_estimates(est_df1)
 # multivariate calibration #
 est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
@@ -77,6 +81,7 @@ est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
 plot_estimates(est_df2)
 # user-specified calibration #
 est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "null", gamma = c(0.96, -0.29, 0))
+                      calitype = "null", gamma = c(0.96, -0.29, 0),
+                      R2 = c(0.3, 0.7, 1))
 plot_estimates(est_df3)
 }

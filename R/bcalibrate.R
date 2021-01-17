@@ -11,8 +11,8 @@
 #' @param t \code{data.frame}. Treatment arms of interest.
 #' May contain a single or multiple treatments in rows.
 #' @param gamma a vector specifying the direction of sensitivity parameters.
-#' @param R2 an optional scalar specifying the proportion of residual variance in outcome given the treatment that
-#' can be explained by confounders, which determines the magnitude of sensitivity parameters.
+#' @param R2 an optional scalar or vector specifying the proportion of residual variance in outcome given the
+#' treatment that can be explained by confounders, which determines the magnitude of sensitivity parameters.
 #' @param mu_y_t an optional scalar or vector that contains naive estimates of treatment effects
 #' ignoring confounding.
 #' @param mu_u_tr an optional matrix of conditional confounder means for all observed treatments
@@ -37,7 +37,7 @@
 #' t1 <- tr[1:5,]
 #' t2 <- rep(0, times = ncol(tr))
 #' est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-#'                      gamma = c(1.27, -0.28, 0), R2 = 1)
+#'                      gamma = c(1.27, -0.28, 0),R2 = c(0.5, 0.7))
 #' rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
 #' plot_estimates(rr_df)
 
@@ -65,12 +65,15 @@ bcalibrate <- function(y, tr, t, gamma, R2 = 1, mu_y_t = NULL,
     lm_y_t <- glm(y ~., family = binomial(link = "probit"), data = data.frame(y, tr))
     mu_y_t <- predict(lm_y_t, newdata = t, type = "response")
   }
-  gamma <- sqrt(R2) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
-  cat("Calibrating observation ")
-  cali <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t, ...)
-  cat("\n")
-  results <- data.frame(Naive = mu_y_t, Calibrated = cali)
-  colnames(results) <- as.character(round(c(0, R2), digits = 2))
+  cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(R2))
+  for (i in 1:length(R2)) {
+    gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
+    cat("R2 = ", R2[i] , ", calibrating observation ")
+    cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t)#, ...)
+    cat("\n")
+  }
+  results <- data.frame(cbind(mu_y_t, cali))
+  colnames(results) <- paste0("R2_", round(c(0, R2), digits = 2))
   results
 }
 

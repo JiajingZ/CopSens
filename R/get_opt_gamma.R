@@ -6,7 +6,7 @@
 #' with latent variables in columns.
 #' @param cov_u_t Covariance matrix of confounders conditional on treatments.
 #' @param sigma_y_t Scalar of the standard deviation of outcome conditional on treatments.
-#' @param penalty_weight scalar specifying the penalty weight when constraints on \eqn{R^2} are placed.
+#' @param penalty_weight scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.
 #' @param gamma0 An optional vector with initial values of the sensitivity parameters to be optimized over.
 #' @param n_iter Number of times of optimization to execute.
 #' @param normtype character. Optional function \code{m} for the multivariate calibration criterion.

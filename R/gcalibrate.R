@@ -22,9 +22,11 @@
 #' @param mu_u_dt an optional matrix of difference in conditional confounder means, \eqn{E(U \mid t1) - E(U \mid t2)},
 #' with latent variables in columns.
 #' @param cov_u_t an optional covariance matrix of confounders conditional on treatments.
-#' @param R2 an optional scalar specifying the proportion of residual variance in outcome given the treatment that
-#' can be explained by confounders.
+#' @param R2 an optional scalar or vector specifying the proportion of residual variance in outcome given the
+#' treatment that can be explained by confounders.
 #' @param gamma sensitivity parameter vector. Must be given when \code{calitype = "null"}.
+#' @param penalty_weight an optional scalar or vector specifying the penalty weight for \eqn{R^2} to place
+#' constraints on its magnitude. By default, \code{penalty_weight = 0}.
 #' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 #' \code{\link{get_opt_gamma}}.
 #'
@@ -38,7 +40,7 @@
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
 #' # worst-case calibration #
 #' est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
-#'                       calitype = "worstcase")
+#'                       calitype = "worstcase", R2 = c(0.6, 1))
 #' plot_estimates(est_df1)
 #' # multivariate calibration #
 #' est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
@@ -46,13 +48,15 @@
 #' plot_estimates(est_df2)
 #' # user-specified calibration #
 #' est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                       calitype = "null", gamma = c(0.96, -0.29, 0))
+#'                       calitype = "null", gamma = c(0.96, -0.29, 0),
+#'                       R2 = c(0.3, 0.7, 1))
 #' plot_estimates(est_df3)
 
 gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "null"),
                       mu_y_dt = NULL, sigma_y_t = NULL,
                       mu_u_dt = NULL, cov_u_t = NULL,
-                      R2 = 1, gamma = NULL, ...) {
+                      R2 = 1, gamma = NULL,
+                      penalty_weight = 0, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by PPCA with default.")
@@ -86,26 +90,33 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
   if (calitype == "worstcase") {
     message("Worst-case calibration executed.")
     bias <- sqrt(R2) * sigma_y_t * sqrt(sum((cov_halfinv %*% c(mu_u_dt))^2))
-    # data.frame(estimate = c(mu_y_dt, mu_y_dt - bias, mu_y_dt + bias),
-               # R2 = c(0, 1, 1))
-    results <- data.frame(Naive = mu_y_dt, Lower = mu_y_dt - bias, Upper = mu_y_dt + bias)
-    colnames(results) <- as.character(c(0, 1, 1))
+    results <- data.frame(cbind(rep(mu_y_dt, 2),
+                     rbind(mu_y_dt - bias, mu_y_dt + bias)))
+    colnames(results) <- paste0("R2_", c(0, R2))
+    rownames(results) <- c("lower", "upper")
     results
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.")
-      gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t, ...)
-      cali <- mu_y_dt - mu_u_dt %*% gamma_opt
-      R2 <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
+      cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(penalty_weight))
+      R2 <- rep(NA, length(penalty_weight))
+      for (i in 1:length(penalty_weight)) {
+        gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
+                                   penalty_weight = penalty_weight[i], ...)
+        cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
+        R2[i] <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
+      }
     } else if (calitype == "null" & is.null(gamma) == FALSE) {
       # eq (33) in terms of d = gamma #
       message("User-specified calibration executed.")
-      cali <- mu_y_dt - sqrt(R2) * sigma_y_t * mu_u_dt %*% cov_halfinv %*% gamma
+      cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(R2))
+      for (i in 1:length(R2)) {
+        cali[,i] <- mu_y_dt - sqrt(R2[i]) * sigma_y_t * mu_u_dt %*% cov_halfinv %*% gamma
+      }
     }
     cat("\n")
-    # data.frame(estimate = c(mu_y_dt, cali), R2 = c(0, R2))
-    results <- data.frame(Naive = mu_y_dt, Calibrated = cali)
-    colnames(results) <- as.character(round(c(0, R2), digits = 2))
+    results <- data.frame(cbind(mu_y_dt, cali))
+    colnames(results) <- paste0("R2_", round(c(0, R2), digits = 2))
     results
   } else {
     stop("Please specify a valid calibration type or gamma.")
