@@ -10,19 +10,19 @@
 
 plot_estimates <- function(est_df) {
   if (rownames(est_df)[1] == "lower") {
-    cast <- rep(1, 2)
+    case <- rep(1, 2)
     bound_df <- data.frame(x1 = 1,
                            y1 = min(est_df["lower",]),
                            x2 = 1,
                            y2 = max(est_df["upper",]))
     } else {
-    cast <- 1:nrow(est_df)
+    case <- 1:nrow(est_df)
     bound_df <- data.frame(x1 = 1:nrow(est_df),
                            y1 = apply(est_df, 1, min),
                            x2 = 1:nrow(est_df),
                            y2 = apply(est_df, 1, max))
     }
-  df <- data.frame(est_df, case = cast) %>%
+  df <- data.frame(est_df, case = case) %>%
     gather(key = "Type", value = "effect", - case)
   ggplot(df) +
   geom_point(aes(x = case, y = effect, col = Type), size = 1.5)  +
@@ -30,8 +30,8 @@ plot_estimates <- function(est_df) {
   scale_color_discrete(name = expression(R^2~":"),
                        labels = paste0(as.numeric(sub('...', '', levels(factor(df$Type))))*100, "%")) +
   labs(y = "estimates") +
-  scale_x_continuous(breaks = unique(cast), labels = as.character(unique(cast)),
-                     limits = c(0.5, max(cast) + 0.5)) +
+  scale_x_continuous(breaks = unique(case), labels = as.character(unique(case)),
+                     limits = c(0.5, max(case) + 0.5)) +
   theme_bw(base_size = 12)
 }
 

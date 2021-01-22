@@ -74,8 +74,12 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       mu_u_dt <- predict(ut_ppca, newdata = t1)$scores - predict(ut_ppca, newdata = t2)$scores
     }
   }
-  eigen_cov <- eigen(cov_u_t)
-  cov_halfinv <- eigen_cov$vectors %*% diag(eigen_cov$values^{-1/2}) %*% t(eigen_cov$vectors)
+  if (ncol(mu_u_dt) == 1) {
+    cov_halfinv <- 1/sqrt(cov_u_t)
+  } else {
+    eigen_cov <- eigen(cov_u_t)
+    cov_halfinv <- eigen_cov$vectors %*% diag(eigen_cov$values^{-1/2}) %*% t(eigen_cov$vectors)
+  }
   # by default, fitting the outcome by ordinary linear regression model #
   if (is.null(mu_y_dt) | is.null(sigma_y_t)) {
     message("Observed outcome model fitted by simple linear regression with default.")
