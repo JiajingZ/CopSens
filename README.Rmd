@@ -9,52 +9,87 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "85%"
 )
 ```
 
-# CopSens README Placeholder
+# CopSens
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of CopSens is to ...
+`CopSens` implements a copula-based sensitivity analysis method for unobserved confounding in multi-treatment inference.
+
 
 ## Installation
 
-You can install the released version of CopSens from [CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("CopSens")
-```
-
-And the development version from [GitHub](https://github.com/) with:
+You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("JiajingZ/CopSens")
 ```
-## Example
 
-This is a basic example which shows you how to solve a common problem:
+The dependency `pcaMethods` from [Bioconductor](http://bioconductor.org) may fail to automatically install,
+which would result in a warning similar to:
+```
+ERROR: dependency ‘pcaMethods’ is not available for package ‘CopSens’
+```
+Then, please first install the `pcaMethods` manually by 
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("pcaMethods")
+```
 
-```{r example}
+
+## Basic Usage
+
+```{r}
+# load package #
 library(CopSens)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+### Example for analysis with Gaussian outcomes
+```{r gaussian-outcome-example}
+# load data #
+y <- GaussianT_GaussianY$y
+tr <- subset(GaussianT_GaussianY, select = -c(y))
 
-```{r cars}
-summary(cars)
+# execute worst-case calibration #
+est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
+                      calitype = "worstcase", R2 = c(0.6, 1))
+# visualize #
+plot_estimates(est_df1)
+
+# execute multivariate calibration #
+est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+                      calitype = "multicali")
+# visualize #
+plot_estimates(est_df2)
+
+# execute user-specified calibration #
+est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                      calitype = "null", gamma = c(0.96, -0.29, 0),
+                      R2 = c(0.3, 0.7, 1))
+# visualize #
+plot_estimates(est_df3)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
+### Example for analysis with binary outcomes
+```{r binary-outcome-example}
+# load data #
+y <- GaussianT_BinaryY$y
+tr <- subset(GaussianT_BinaryY, select = -c(y))
+t1 <- tr[1:5,]
+t2 <- rep(0, times = ncol(tr))
 
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
+# calibrate #
+est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
+                     gamma = c(1.27, -0.28, 0), R2 = c(0.5, 0.7))
+# calculate risk ratio estimator #
+rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
+# visualize #
+plot_estimates(rr_df)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
