@@ -40,16 +40,16 @@
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
 #' # worst-case calibration #
 #' est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
-#'                       calitype = "worstcase", R2 = c(0.6, 1))
+#'                       calitype = "worstcase", R2 = c(0.6, 1))$results
 #' plot_estimates(est_df1)
 #' # multivariate calibration #
 #' est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-#'                       calitype = "multicali")
+#'                       calitype = "multicali")$results
 #' plot_estimates(est_df2)
 #' # user-specified calibration #
 #' est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
 #'                       calitype = "null", gamma = c(0.96, -0.29, 0),
-#'                       R2 = c(0.3, 0.7, 1))
+#'                       R2 = c(0.3, 0.7, 1))$results
 #' plot_estimates(est_df3)
 
 gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "null"),
@@ -98,7 +98,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
                      rbind(mu_y_dt - bias, mu_y_dt + bias)))
     colnames(results) <- paste0("R2_", c(0, R2))
     rownames(results) <- c("lower", "upper")
-    results
+    list(results = results, R2 = R2)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")
@@ -123,7 +123,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
     cat("\n")
     results <- data.frame(cbind(mu_y_dt, cali))
     colnames(results) <- paste0("R2_", round(c(0, R2), digits = 2))
-    results
+    list(results = results, R2 = R2)
   } else {
     stop("Please specify a valid calibration type or gamma.")
   }
