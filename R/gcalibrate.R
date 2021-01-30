@@ -99,12 +99,6 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
     colnames(results) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
                                                    rep(c('_lwr', '_upr'), times = length(R2)))))
     list(results = data.frame(results), R2 = R2)
-    # bias <- sqrt(R2) * sigma_y_t * sqrt(sum((cov_halfinv %*% c(mu_u_dt))^2))
-    # results <- data.frame(cbind(rep(mu_y_dt, 2),
-    #                  rbind(mu_y_dt - bias, mu_y_dt + bias)))
-    # colnames(results) <- paste0("R2_", c(0, R2))
-    # rownames(results) <- c("lower", "upper")
-    # list(results = results, R2 = R2)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")
