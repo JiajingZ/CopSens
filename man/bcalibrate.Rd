@@ -65,7 +65,7 @@ tr <- subset(GaussianT_BinaryY, select = -c(y))
 t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
 est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-                     gamma = c(1.27, -0.28, 0),R2 = c(0.5, 0.7))
+                     gamma = c(1.27, -0.28, 0), R2 = c(0.5, 0.7))
 rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
 plot_estimates(rr_df)
 }

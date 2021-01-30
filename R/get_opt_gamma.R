@@ -35,8 +35,9 @@ get_opt_gamma <- function(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
   }
   latent_dim <- ncol(mu_u_dt)
   if (is.null(gamma0)){
-    gamma0 <- rep(0, latent_dim)
+    gamma0 <- rnorm(latent_dim)
   }
+  gamma0_norm <- sqrt(sum(gamma0^2))
   obj_min <- objective(gamma0)
   gamma_opt <- gamma0
   for (i in 1:n_iter) {
@@ -45,7 +46,7 @@ get_opt_gamma <- function(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
       obj_min <- solution$value
       gamma_opt <- solution$par
     }
-    gamma0 <- rnorm(latent_dim)
+    gamma0 <- gamma0_norm * rnorm(latent_dim)
   }
   gamma_opt
 }

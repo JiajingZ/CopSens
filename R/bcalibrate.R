@@ -37,7 +37,7 @@
 #' t1 <- tr[1:5,]
 #' t2 <- rep(0, times = ncol(tr))
 #' est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-#'                      gamma = c(1.27, -0.28, 0),R2 = c(0.5, 0.7))
+#'                      gamma = c(1.27, -0.28, 0), R2 = c(0.5, 0.7))
 #' rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
 #' plot_estimates(rr_df)
 
@@ -69,7 +69,7 @@ bcalibrate <- function(y, tr, t, gamma, R2 = 1, mu_y_t = NULL,
   for (i in 1:length(R2)) {
     gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
     cat("R2 = ", R2[i] , ", calibrating observation ")
-    cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t)#, ...)
+    cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t, ...)
     cat("\n")
   }
   results <- data.frame(cbind(mu_y_t, cali))

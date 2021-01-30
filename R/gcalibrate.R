@@ -101,10 +101,12 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
     results
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
-      message("Multivariate calibration executed.")
+      message("Multivariate calibration executed.\n")
       cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(penalty_weight))
       R2 <- rep(NA, length(penalty_weight))
+      cat("Calibrating with penalty_weight = ")
       for (i in 1:length(penalty_weight)) {
+        cat(penalty_weight[i], " ")
         gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
                                    penalty_weight = penalty_weight[i], ...)
         cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
