@@ -72,7 +72,7 @@ or multivariate calibration for multiple contrasts.
 y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 # worst-case calibration #
-est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
+est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                       calitype = "worstcase", R2 = c(0.6, 1))$results
 plot_estimates(est_df1)
 # multivariate calibration #

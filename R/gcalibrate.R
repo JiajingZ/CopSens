@@ -39,7 +39,7 @@
 #' y <- GaussianT_GaussianY$y
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
 #' # worst-case calibration #
-#' est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1,], t2 = tr[2,],
+#' est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
 #'                       calitype = "worstcase", R2 = c(0.6, 1))$results
 #' plot_estimates(est_df1)
 #' # multivariate calibration #
@@ -93,12 +93,18 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
   }
   if (calitype == "worstcase") {
     message("Worst-case calibration executed.")
-    bias <- sqrt(R2) * sigma_y_t * sqrt(sum((cov_halfinv %*% c(mu_u_dt))^2))
-    results <- data.frame(cbind(rep(mu_y_dt, 2),
-                     rbind(mu_y_dt - bias, mu_y_dt + bias)))
-    colnames(results) <- paste0("R2_", c(0, R2))
-    rownames(results) <- c("lower", "upper")
-    list(results = results, R2 = R2)
+    bias <- sigma_y_t * apply(mu_u_dt %*% cov_halfinv, 1, function(x) sqrt(sum(x^2))) %o%
+            c(0, rep(R2, each = 2)*rep(c(-1, 1), times = length(R2)))
+    results <- matrix(rep(mu_y_dt, times = 2*length(R2)+1), nrow = length(mu_y_dt)) + bias
+    colnames(results) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
+                                                   rep(c('_lwr', '_upr'), times = length(R2)))))
+    list(results = data.frame(results), R2 = R2)
+    # bias <- sqrt(R2) * sigma_y_t * sqrt(sum((cov_halfinv %*% c(mu_u_dt))^2))
+    # results <- data.frame(cbind(rep(mu_y_dt, 2),
+    #                  rbind(mu_y_dt - bias, mu_y_dt + bias)))
+    # colnames(results) <- paste0("R2_", c(0, R2))
+    # rownames(results) <- c("lower", "upper")
+    # list(results = results, R2 = R2)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")
