@@ -12,7 +12,6 @@
 #'
 #' @return Scalar of calibrated intervention mean.
 #'
-
 cali_mean_ybinary_algm <- function(i, gamma, mu_u_tr, mu_u_t, mu_y_t, nsim = 4000) {
   cat(i, " ")
   mu_i <- c((mu_u_tr - mu_u_t[i,]) %*% gamma)
@@ -20,4 +19,5 @@ cali_mean_ybinary_algm <- function(i, gamma, mu_u_tr, mu_u_t, mu_y_t, nsim = 400
   y_samples <- ifelse(pnorm(ytilde_samples) > 1 - mu_y_t[i], 1, 0)
   mean(y_samples)
 }
+
 

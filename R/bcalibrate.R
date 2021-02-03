@@ -37,12 +37,13 @@
 #' t1 <- tr[1:5,]
 #' t2 <- rep(0, times = ncol(tr))
 #' est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-#'                      gamma = c(1.27, -0.28, 0), R2 = c(0.5, 0.7))
+#'                      gamma = c(1.27, -0.28, 0),
+#'                      R2 = c(0.5, 0.7))$est_df
 #' rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
 #' plot_estimates(rr_df)
 
 
-bcalibrate <- function(y, tr, t, gamma, R2 = 1, mu_y_t = NULL,
+bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
                        mu_u_tr = NULL, mu_u_t = NULL, cov_u_t = NULL,
                        nsim = 4000, ...) {
   # by default, fitting latent confounder model by PPCA #
@@ -51,7 +52,7 @@ bcalibrate <- function(y, tr, t, gamma, R2 = 1, mu_y_t = NULL,
     ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
     ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
                                nPcs = ut_cv$bestNPcs, ...)
-    W = pcaMethods::loadings(ut_ppca)
+    W <- pcaMethods::loadings(ut_ppca)
     tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
     sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
     ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
@@ -65,16 +66,30 @@ bcalibrate <- function(y, tr, t, gamma, R2 = 1, mu_y_t = NULL,
     lm_y_t <- glm(y ~., family = binomial(link = "probit"), data = data.frame(y, tr))
     mu_y_t <- predict(lm_y_t, newdata = t, type = "response")
   }
-  cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(R2))
-  for (i in 1:length(R2)) {
-    gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
-    cat("R2 = ", R2[i] , ", calibrating observation ")
-    cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t, ...)
-    cat("\n")
-  }
-  results <- data.frame(cbind(mu_y_t, cali))
-  colnames(results) <- paste0("R2_", round(c(0, R2), digits = 2))
-  results
+  if (!is.null(R2)) {
+    cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(R2))
+    for (i in 1:length(R2)) {
+      gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
+      cat("R2 = ", R2[i] , ", calibrating observation ")
+      cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t)#, ...)
+      cat("\n")
+      }
+    # est_df <- data.frame(cbind(mu_y_t, cali))
+    # colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
+    # est_df
+    } else {
+      cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(gamma))
+      R2 <- rep(NA, nrow(gamma))
+      for (i in 1:nrow(gamma)) {
+        cat("gamma = ", gamma[i,], "\n", "calibrating observation ")
+        cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma[i,], mu_u_tr, mu_u_t, mu_y_t)#, ...)
+        R2[i] <- c(t(gamma[i,]) %*% cov_u_t %*% gamma[i,])
+        cat("\n")
+      }
+    }
+  est_df <- data.frame(cbind(mu_y_t, cali))
+  colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
+  list(est_df = est_df, R2 = R2)
 }
 
 
