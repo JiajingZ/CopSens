@@ -18,14 +18,18 @@ plot_estimates <- function(est_df) {
     gather(key = "Type", value = "effect", - case)
 
   label_init <- levels(factor(df$Type))
-  labels <- rep(0, length(label_init))
-  for (i in 2:length(label_init)) {
-    # extract the initial position
-    initial.position = gregexpr('_', label_init[i])[[1]][1] + 1
-    # extract the final position
-    final.position = gregexpr('_', label_init[i])[[1]][2] - 1
-    # extract the substring between the initial and final positions, inclusively
-    labels[i] = substr(label_init[i], initial.position, final.position)
+  if (length(gregexpr('_', label_init[2])[[1]]) > 1) {
+    labels <- rep(0, length(label_init))
+    for (i in 2:length(label_init)) {
+      # extract the initial position
+      initial.position = gregexpr('_', label_init[i])[[1]][1] + 1
+      # extract the final position
+      final.position = gregexpr('_', label_init[i])[[1]][2] - 1
+      # extract the substring between the initial and final positions, inclusively
+      labels[i] = substr(label_init[i], initial.position, final.position)
+    }
+  } else {
+    labels <- sub('...', '', label_init)
   }
 
   ggplot(df) +
