@@ -62,10 +62,9 @@ cal_rv <- function(y, tr, t1, t2,
       sigma_y_t <- sigma(lm_y_t)
     }
   }
-  rv_init <- (100*c(mu_y_dt^2) / apply(mu_u_dt %*% cov_halfinv, 1, function(x) sum(x^2)) /
-              sigma_y_t^2) %>% round(digits = 2)
-  rv <- rep("robust", length(mu_y_dt))
-  rv[rv_init <= 100] <- paste0(rv_init[rv_init <= 100], "%")
+  rv <- (c(mu_y_dt^2) / apply(mu_u_dt %*% cov_halfinv, 1, function(x) sum(x^2)) /
+           sigma_y_t^2) %>% round(digits = 4)
+  rv[rv > 1] <- "robust"
   rv
 }
 
