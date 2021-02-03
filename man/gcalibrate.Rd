@@ -59,7 +59,13 @@ constraints on its magnitude. By default, \code{penalty_weight = 0}.}
 \code{\link{get_opt_gamma}}.}
 }
 \value{
-A \code{data.frame} with naive and calibrated estimates of average treatment effects.
+\code{gcalibrate} returns a list containing the following components:
+\describe{
+  \item{\code{est_df}}{a \code{data.frame} with naive and calibrated estimates of average treatment effects.}
+  \item{\code{R2}}{a vector of \eqn{R^2} with elements corresponding to columns of \code{est_df}.}
+}
+In addition, if \code{calitype = "multicali"}, components \code{gamma} will be returned, whose columns
+are optimized gamma, respectively resulting in estimates in columns of \code{est_df}.
 }
 \description{
 Calibrates the naive estimates to account for unobserved confounding when outcome
@@ -72,16 +78,16 @@ or multivariate calibration for multiple contrasts.
 y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 # worst-case calibration #
-est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "worstcase", R2 = c(0.6, 1))$results
-plot_estimates(est_df1)
+est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                      calitype = "worstcase", R2 = c(0.6, 1))
+plot_estimates(est1$est_df)
 # multivariate calibration #
-est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                      calitype = "multicali")$results
-plot_estimates(est_df2)
+est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+                      calitype = "multicali", penalty_weight = c(0, 15))
+plot_estimates(est2$est_df)
 # user-specified calibration #
-est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                       calitype = "null", gamma = c(0.96, -0.29, 0),
-                      R2 = c(0.3, 0.7, 1))$results
-plot_estimates(est_df3)
+                      R2 = c(0.3, 0.7, 1))
+plot_estimates(est3$est_df)
 }

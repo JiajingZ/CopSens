@@ -30,8 +30,14 @@
 #' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 #' \code{\link{get_opt_gamma}}.
 #'
-#'
-#' @return A \code{data.frame} with naive and calibrated estimates of average treatment effects.
+#' @return \code{gcalibrate} returns a list containing the following components:
+#' \describe{
+#'   \item{\code{est_df}}{a \code{data.frame} with naive and calibrated estimates of average treatment effects.}
+#'   \item{\code{R2}}{a vector of \eqn{R^2} with elements corresponding to columns of \code{est_df}.}
+#' }
+#' In addition, if \code{calitype = "multicali"}, components \code{gamma} will be returned, whose columns
+#' are optimized gamma, respectively resulting in estimates in columns of \code{est_df}.
+#
 #' @export
 #'
 #' @examples
@@ -39,18 +45,18 @@
 #' y <- GaussianT_GaussianY$y
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
 #' # worst-case calibration #
-#' est_df1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                       calitype = "worstcase", R2 = c(0.6, 1))$results
-#' plot_estimates(est_df1)
+#' est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+#'                       calitype = "worstcase", R2 = c(0.6, 1))
+#' plot_estimates(est1$est_df)
 #' # multivariate calibration #
-#' est_df2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-#'                       calitype = "multicali")$results
-#' plot_estimates(est_df2)
+#' est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+#'                       calitype = "multicali", penalty_weight = c(0, 15))
+#' plot_estimates(est2$est_df)
 #' # user-specified calibration #
-#' est_df3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+#' est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
 #'                       calitype = "null", gamma = c(0.96, -0.29, 0),
-#'                       R2 = c(0.3, 0.7, 1))$results
-#' plot_estimates(est_df3)
+#'                       R2 = c(0.3, 0.7, 1))
+#' plot_estimates(est3$est_df)
 
 gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "null"),
                       mu_y_dt = NULL, sigma_y_t = NULL,
@@ -95,15 +101,16 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
     message("Worst-case calibration executed.")
     bias <- sigma_y_t * apply(mu_u_dt %*% cov_halfinv, 1, function(x) sqrt(sum(x^2))) %o%
             c(0, rep(R2, each = 2)*rep(c(-1, 1), times = length(R2)))
-    results <- matrix(rep(mu_y_dt, times = 2*length(R2)+1), nrow = length(mu_y_dt)) + bias
-    colnames(results) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
+    est_df <- matrix(rep(mu_y_dt, times = 2*length(R2)+1), nrow = length(mu_y_dt)) + bias
+    colnames(est_df) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
                                                    rep(c('_lwr', '_upr'), times = length(R2)))))
-    list(results = data.frame(results), R2 = R2)
+    list(est_df = data.frame(est_df), R2 = R2)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")
       cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(penalty_weight))
       R2 <- rep(NA, length(penalty_weight))
+      gamma <- matrix(NA, nrow = ncol(mu_u_dt), ncol = length(penalty_weight))
       cat("Calibrating with penalty_weight = ")
       for (i in 1:length(penalty_weight)) {
         cat(penalty_weight[i], " ")
@@ -111,7 +118,13 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
                                    penalty_weight = penalty_weight[i], ...)
         cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
         R2[i] <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
+        gamma[,i] <- gamma_opt
       }
+      cat("\n")
+      est_df <- data.frame(cbind(mu_y_dt, cali))
+      colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
+      colnames(gamma) <- colnames(est_df)[-1]
+      list(est_df = est_df, R2 = R2, gamma = gamma)
     } else if (calitype == "null" & is.null(gamma) == FALSE) {
       # eq (33) in terms of d = gamma #
       message("User-specified calibration executed.")
@@ -119,11 +132,11 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       for (i in 1:length(R2)) {
         cali[,i] <- mu_y_dt - sqrt(R2[i]) * sigma_y_t * mu_u_dt %*% cov_halfinv %*% gamma
       }
+      cat("\n")
+      est_df <- data.frame(cbind(mu_y_dt, cali))
+      colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
+      list(est_df = est_df, R2 = R2)
     }
-    cat("\n")
-    results <- data.frame(cbind(mu_y_dt, cali))
-    colnames(results) <- paste0("R2_", round(c(0, R2), digits = 2))
-    list(results = results, R2 = R2)
   } else {
     stop("Please specify a valid calibration type or gamma.")
   }
