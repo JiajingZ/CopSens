@@ -61,9 +61,9 @@ or multivariate calibration for multiple contrasts.
 # load the example data #
 y <- GaussianT_BinaryY$y
 tr <- subset(GaussianT_BinaryY, select = -c(y))
-# calibration #
 t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
+# calibration #
 est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
                      gamma = c(1.27, -0.28, 0),
                      R2 = c(0.5, 0.7))$est_df
