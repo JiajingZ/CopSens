@@ -170,7 +170,7 @@ u_t_diff <- (t1 - t2) %*% t(coef_mu_u_t_hat)
 R2 <- c(0.3, 0.6, 1)
 beta_cali_worstcase <- CopSens::gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
                                       mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                      mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = c(0.3, 0.6, 1))$est_df
+                                      mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)$est_df
 #> Worst-case calibration executed.
 rownames(beta_cali_worstcase) <- names(beta_t)
 

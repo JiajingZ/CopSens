@@ -136,7 +136,7 @@ u_t_diff <- (t1 - t2) %*% t(coef_mu_u_t_hat)
 R2 <- c(0.3, 0.6, 1)
 beta_cali_worstcase <- CopSens::gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
                                       mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                      mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = c(0.3, 0.6, 1))$est_df
+                                      mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)$est_df
 rownames(beta_cali_worstcase) <- names(beta_t)
 
 ## multivariate calibration ##
@@ -198,7 +198,7 @@ plot_L2NullWorst <-
     gather(key = "Type", value = "effect", - case) %>%
     ggplot() +
     ungeviz::geom_hpline(aes(x = case, y = effect, col = Type),
-                         width = 0.5, size = 0.7, alpha = 0.8)  +
+                         width = 0.5, size = 1, alpha = 0.8)  +
     geom_segment(data = bound_df, aes(x=x1, y=y1, xend=x2, yend=y2)) +
     scale_colour_manual(name = "",
                         values = c("#FFC300", "#F5191C", "#3B99B1", "black", "black"),
