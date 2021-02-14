@@ -168,23 +168,23 @@ u_t_diff <- (t1 - t2) %*% t(coef_mu_u_t_hat)
 
 # worst-case calibration #
 R2 <- c(0.3, 0.6, 1)
-beta_cali_worstcase <- CopSens::gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
-                                      mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                      mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)$est_df
+beta_cali_worstcase <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
+                                  mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
+                                  mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)$est_df
 #> Worst-case calibration executed.
 rownames(beta_cali_worstcase) <- names(beta_t)
 
 ## multivariate calibration ##
 # with L1 norm #
-multcali_results_L1 <- CopSens::gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali",
-                                           mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                           mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L1")
+multcali_results_L1 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali",
+                                  mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
+                                  mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L1")
 #> Multivariate calibration executed.
 #> Calibrating with penalty_weight = 0
 # with L2 norm #
-multcali_results_L2 <- CopSens::gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali", 
-                                           mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                           mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
+multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali", 
+                                  mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
+                                  mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 #> Multivariate calibration executed.
 #> Calibrating with penalty_weight = 0
 ```
