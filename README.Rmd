@@ -97,7 +97,7 @@ plot_estimates(rr_df)
 
 ## Implementation To a Mouse Obesity Study
 
-For further illustration, we compare our approach to a recent analysis of a mouse obesity dataset [Wang et al. (2006)](https://doi.org/10.1371/journal.pgen.0020015), conducted by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504). In particular, we consider the comparison to their null treatments approach, which assumes that at least half of the confounded treatments have no causal effect on the outcome.
+For further illustration, we compare our approach to a recent analysis of a mouse obesity dataset [(Wang et al. (2006))](https://doi.org/10.1371/journal.pgen.0020015), conducted by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504). In particular, we consider the comparison to their null treatments approach, which assumes that at least half of the confounded treatments have no causal effect on the outcome.
 
 ```{r}
 # load the data #
@@ -124,7 +124,7 @@ names(beta_t) <- colnames(tr)
 sigma_y_t_hat <- sigma(lmfit_y_t)
 ```
 
-We explore the ignorance regions for each treatment as well as estimate the treatment effects with multiple contrast criteria (MCCs) using the method described in []().
+We explore the ignorance regions for each treatment as well as causal estimates with multiple contrast criteria (MCCs) using the method described in [cite-paper]().
 
 ```{r}
 k <- ncol(tr)
@@ -150,7 +150,7 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 ```
 
-We visualize the analysis results below:
+Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504) with null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively.
 
 ```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 order_name <- rownames(multcali_results_L2$est_df)[order(multcali_results_L2$est_df[,2])]
@@ -186,7 +186,7 @@ plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
 print(plot_L1L2Null)
 ```
 
-The Spearman’s rank correlation between the estimated treatment effects by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504) with null treatment assumption ("miao$\_$nulltr") and the estimates by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively.
+Also, it can be noticed that the [Miao et al. (2020)](https://arxiv.org/abs/2011.04504)'s causal estimates with null treatment assumption ("miao$\_$nulltr") would correspond to a single point inside the ignorance region ("worstcase $R^2 = 1$, lower", "worstcase $R^2 = 1$, upper") when the Gaussian copula assumption holds.
 
 ```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 bound_df <- tibble(x1 = 1:nrow(summary_df),
@@ -219,5 +219,5 @@ plot_L2NullWorst <-
 print(plot_L2NullWorst)
 ```
 
-The [Miao et al. (2020)](https://arxiv.org/abs/2011.04504)'s causal effect estimate with null treatment assumption ("miao$\_$nulltr") would correspond to a single point inside the ignorance region ("worstcase $R^2 = 1$, lower", "worstcase $R^2 = 1$, upper") when the Gaussian copula assumption holds.
+
 

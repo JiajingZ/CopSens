@@ -121,8 +121,8 @@ plot_estimates(rr_df)
 ## Implementation To a Mouse Obesity Study
 
 For further illustration, we compare our approach to a recent analysis
-of a mouse obesity dataset [Wang et
-al. (2006)](https://doi.org/10.1371/journal.pgen.0020015), conducted by
+of a mouse obesity dataset [(Wang et
+al. (2006))](https://doi.org/10.1371/journal.pgen.0020015), conducted by
 [Miao et al. (2020)](https://arxiv.org/abs/2011.04504). In particular,
 we consider the comparison to their null treatments approach, which
 assumes that at least half of the confounded treatments have no causal
@@ -156,9 +156,9 @@ names(beta_t) <- colnames(tr)
 sigma_y_t_hat <- sigma(lmfit_y_t)
 ```
 
-We explore the ignorance regions for each treatment as well as estimate
-the treatment effects with multiple contrast criteria (MCCs) using the
-method described in []().
+We explore the ignorance regions for each treatment as well as causal
+estimates with multiple contrast criteria (MCCs) using the method
+described in [cite-paper]().
 
 ``` r
 k <- ncol(tr)
@@ -189,20 +189,20 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
 #> Calibrating with penalty_weight = 0
 ```
 
-We visualize the analysis results below:
+Below, we visualize the analysis results. The Spearman’s rank
+correlation between the estimated treatment effects by [Miao et
+al. (2020)](https://arxiv.org/abs/2011.04504) with null treatment
+assumption (“miao\_nulltr”) and ones by our MCC procedure with the L1
+(“multicali\_L1”) or L2 minimization (“multicali\_L2”) are 0.90 and 0.93
+respectively.
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" />
 
-The Spearman’s rank correlation between the estimated treatment effects
-by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504) with null
-treatment assumption (“miao\_nulltr”) and the estimates by our MCC
-procedure with the L1 (“multicali\_L1”) or L2 minimization
-(“multicali\_L2”) are 0.90 and 0.93 respectively.
+Also, it can be noticed that the [Miao et
+al. (2020)](https://arxiv.org/abs/2011.04504)’s causal estimates with
+null treatment assumption (“miao\_nulltr”) would correspond to a single
+point inside the ignorance region (“worstcase *R*<sup>2</sup> = 1,
+lower”, “worstcase *R*<sup>2</sup> = 1, upper”) when the Gaussian copula
+assumption holds.
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" />
-
-The [Miao et al. (2020)](https://arxiv.org/abs/2011.04504)’s causal
-effect estimate with null treatment assumption (“miao\_nulltr”) would
-correspond to a single point inside the ignorance region (“worstcase
-*R*<sup>2</sup> = 1, lower”, “worstcase *R*<sup>2</sup> = 1, upper”)
-when the Gaussian copula assumption holds.
