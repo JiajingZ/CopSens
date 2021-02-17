@@ -134,10 +134,9 @@ y <- micedata[,1]
 tr <- micedata[, 2:18]
 ```
 
-Following [Miao et al. (2020)](https://arxiv.org/abs/2011.04504), we
-infer a Gaussian conditional confounder distribution by applying factor
-analysis to treatments, and fit the observed outcome distribution with a
-linear regression.
+Following Miao et al. (2020), we infer a Gaussian conditional confounder
+distribution by applying factor analysis to treatments, and fit the
+observed outcome distribution with a linear regression.
 
 ``` r
 # treatment model #
@@ -190,19 +189,22 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
 ```
 
 Below, we visualize the analysis results. The Spearman’s rank
-correlation between the estimated treatment effects by [Miao et
-al. (2020)](https://arxiv.org/abs/2011.04504) with null treatment
-assumption (“miao\_nulltr”) and ones by our MCC procedure with the L1
-(“multicali\_L1”) or L2 minimization (“multicali\_L2”) are 0.90 and 0.93
-respectively.
+correlation between the estimated treatment effects of Miao et
+al. (2020) with the null treatment assumption (“miao\_nulltr”) and ones
+by our MCC procedure with the L1 (“multicali\_L1”) or L2 minimization
+(“multicali\_L2”) are 0.90 and 0.93 respectively. In the plot below, the
+blue, green and yellow bars are closely grouped together for majority of
+treatments.
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" />
 
-Also, it can be noticed that the [Miao et
-al. (2020)](https://arxiv.org/abs/2011.04504)’s causal estimates with
-null treatment assumption (“miao\_nulltr”) would correspond to a single
-point inside the ignorance region (“worstcase *R*<sup>2</sup> = 1,
-lower”, “worstcase *R*<sup>2</sup> = 1, upper”) when the Gaussian copula
-assumption holds.
+We also explore the worst-case ignorance region for each treatment under
+the Gaussian copula assumption. Even though, this assumption may not
+hold in practice, we can still see in the plot that 16/17 of Miao et
+al. (2020)’s causal estimates with null treatment assumption
+(“miao\_nulltr”) are covered by our ignorance region (“worstcase
+*R*<sup>2</sup> = 1, lower”; “worstcase *R*<sup>2</sup> = 1, upper”).
+The only exception, \`\`2010002N04Rik", whose causal effects by Miao et
+al. (2020) is, nevertheless, quite close to the lower bound.
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" />

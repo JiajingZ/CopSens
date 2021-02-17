@@ -105,7 +105,7 @@ y <- micedata[,1]
 tr <- micedata[, 2:18]
 ```
 
-Following [Miao et al. (2020)](https://arxiv.org/abs/2011.04504), we infer a Gaussian conditional confounder distribution by applying factor analysis to treatments, and fit the observed outcome distribution with a linear regression.
+Following Miao et al. (2020), we infer a Gaussian conditional confounder distribution by applying factor analysis to treatments, and fit the observed outcome distribution with a linear regression.
 
 ```{r}
 # treatment model #
@@ -150,7 +150,7 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 ```
 
-Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects by [Miao et al. (2020)](https://arxiv.org/abs/2011.04504) with null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively.
+Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects of Miao et al. (2020) with the null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively. In the plot below, the blue, green and yellow bars are closely grouped together for majority of treatments.
 
 ```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 order_name <- rownames(multcali_results_L2$est_df)[order(multcali_results_L2$est_df[,2])]
@@ -186,7 +186,8 @@ plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
 print(plot_L1L2Null)
 ```
 
-Also, it can be noticed that the [Miao et al. (2020)](https://arxiv.org/abs/2011.04504)'s causal estimates with null treatment assumption ("miao$\_$nulltr") would correspond to a single point inside the ignorance region ("worstcase $R^2 = 1$, lower", "worstcase $R^2 = 1$, upper") when the Gaussian copula assumption holds.
+We also explore the worst-case ignorance region for each treatment under the Gaussian copula assumption. Even though, this assumption may not hold in practice, we can still see in the plot that 16/17 of Miao et al. (2020)'s causal estimates with null treatment assumption ("miao$\_$nulltr") are covered by our ignorance region ("worstcase $R^2 = 1$, lower"; "worstcase $R^2 = 1$, upper"). The only exception, ``2010002N04Rik", whose causal effects by Miao et al. (2020) is, nevertheless, quite close to the lower bound.
+
 
 ```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 bound_df <- tibble(x1 = 1:nrow(summary_df),
