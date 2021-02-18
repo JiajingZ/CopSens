@@ -4,10 +4,11 @@
 \alias{plot_estimates}
 \title{Visualize Estimates of Treatment Effects}
 \usage{
-plot_estimates(est_df)
+plot_estimates(est)
 }
 \arguments{
-\item{est_df}{\code{data.frame} containing estimates of treatment effects with estimates' type in columns and
+\item{est}{an return object from \code{\link{gcalibrate}} or \code{\link{bcalibrate}}, or
+\code{data.frame} containing estimates of treatment effects with estimates' type in columns and
 contrasts of interest in rows.}
 }
 \description{

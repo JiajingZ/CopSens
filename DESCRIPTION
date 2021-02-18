@@ -22,4 +22,5 @@ Depends:
     R (>= 3.6.0),
     tidyverse (>= 1.3.0)
 Imports:
-    pcaMethods (>= 1.78.0)
+    pcaMethods (>= 1.78.0),
+    ungeviz (>= 0.1.0)
