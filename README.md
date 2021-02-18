@@ -50,47 +50,71 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # execute worst-case calibration #
-est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "worstcase", R2 = c(0.6, 1))
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "worstcase", R2 = c(0.6, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> Worst-case calibration executed.
 # visualize #
-plot_estimates(est1$est_df)
+plot_estimates(est_g1)
 ```
 
 <img src="man/figures/README-gaussian-outcome-example-1.png" width="85%" style="display: block; margin: auto;" />
 
 ``` r
+# calculate robustness value #
+rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
+#> Fitting the latent confounder model by PPCA with default.
+#> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
+#> Observed outcome model fitted by simple linear regression with default.
+print(rv)
+#>        1        2     1698 
+#> "0.2968" "0.3395" "robust"
+
 # execute multivariate calibration #
-est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                      calitype = "multicali", penalty_weight = c(0, 15))
+est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+                     calitype = "multicali", penalty_weight = c(0, 15))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> Multivariate calibration executed.
 #> Calibrating with penalty_weight = 0  15
 # visualize #
-plot_estimates(est2$est_df)
+plot_estimates(est_g2)
 ```
 
 <img src="man/figures/README-gaussian-outcome-example-2.png" width="85%" style="display: block; margin: auto;" />
 
 ``` r
 # execute user-specified calibration #
-est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "null", gamma = c(0.96, -0.29, 0),
-                      R2 = c(0.3, 0.7, 1))
+est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = c(0.96, -0.29, 0),
+                     R2 = c(0.3, 0.7, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> User-specified calibration executed.
 # visualize #
-plot_estimates(est3$est_df)
+plot_estimates(est_g3)
 ```
 
 <img src="man/figures/README-gaussian-outcome-example-3.png" width="85%" style="display: block; margin: auto;" />
+
+``` r
+# apply gamma that maximizes the bias for the first contrast considered in est_g1 #
+est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = est_g1$gamma[1,],
+                     R2 = c(0.3, 0.7, 1))
+#> Fitting the latent confounder model by PPCA with default.
+#> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
+#> Observed outcome model fitted by simple linear regression with default.
+#> User-specified calibration executed.
+# visualize #
+plot_estimates(est_g4)
+```
+
+<img src="man/figures/README-gaussian-outcome-example-4.png" width="85%" style="display: block; margin: auto;" />
 
 ### Example for analysis with binary outcomes
 
@@ -196,6 +220,40 @@ by our MCC procedure with the L1 (“multicali\_L1”) or L2 minimization
 blue, green and yellow bars are closely grouped together for majority of
 treatments.
 
+``` r
+order_name <- rownames(multcali_results_L2$est_df)[order(multcali_results_L2$est_df[,2])]
+summary_df <- data.frame(uncali = round(multcali_results_L2$est_df[order_name, 1], 3),
+                         multicali_L1 = round(multcali_results_L1$est_df[order_name, 2], 3),
+                         multicali_L2 = round(multcali_results_L2$est_df[order_name, 2], 3),
+                         miao_nulltr =  mice_est_nulltr[order_name,]$esti,
+                         miao_nulltr_sig = mice_est_nulltr[order_name,]$signif,
+                         worstcase_lwr = beta_cali_worstcase[order_name, 'R2_1_lwr'],
+                         worstcase_upr = beta_cali_worstcase[order_name, 'R2_1_upr'])
+rownames(summary_df) <- order_name
+plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
+  gather(key = "Type", value = "effect", - case) %>%
+  ggplot() +
+  ungeviz::geom_hpline(aes(x = case, y = effect, col = Type), width = 0.5, size = 1.2)  +
+  scale_colour_manual(name = "",
+                      values = c("#3B99B1", "#7CBA96", "#FFC300", "#F5191C"),
+                      # divergingx_hcl(5, palette = "Zissou 1")[c(1, 2, 3, 5)],
+                      labels = c("miao_nulltr",
+                                 bquote("multicali_L1,"~R^2~"="~
+                                              .(round(multcali_results_L1$R2*100,0))~"%"),
+                                 bquote("multicali_L2,"~R^2~"="~
+                                              .(round(multcali_results_L2$R2*100,0))~"%"),
+                                 "naive")) +
+  scale_x_continuous(breaks = 1:k, labels = order_name,
+                     limits = c(0.5,k + 0.5)) +
+  labs(y = "estimates") +
+  theme_bw(base_size = 14) +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(size = 13, angle = 75, hjust = 1),
+        legend.text.align = 0,
+        legend.title = element_text(size=10))
+print(plot_L1L2Null)
+```
+
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" />
 
 We also explore the worst-case ignorance region for each treatment under
@@ -204,7 +262,38 @@ hold in practice, we can still see in the plot that 16/17 of Miao et
 al. (2020)’s causal estimates with null treatment assumption
 (“miao\_nulltr”) are covered by our ignorance region (“worstcase
 *R*<sup>2</sup> = 1, lower”; “worstcase *R*<sup>2</sup> = 1, upper”).
-The only exception, \`\`2010002N04Rik", whose causal effects by Miao et
+The only exception, “2010002N04Rik”, whose causal effects by Miao et
 al. (2020) is, nevertheless, quite close to the lower bound.
+
+``` r
+bound_df <- tibble(x1 = 1:nrow(summary_df),
+                 y1 = summary_df$worstcase_lwr,
+                 x2 = 1:nrow(summary_df),
+                 y2 = summary_df$worstcase_upr)
+plot_L2NullWorst <-
+  data.frame(summary_df[,c(1,3,4,6:7)], case = 1:nrow(summary_df)) %>%
+    gather(key = "Type", value = "effect", - case) %>%
+    ggplot() +
+    ungeviz::geom_hpline(aes(x = case, y = effect, col = Type),
+                         width = 0.5, size = 1, alpha = 0.8)  +
+    geom_segment(data = bound_df, aes(x=x1, y=y1, xend=x2, yend=y2)) +
+    scale_colour_manual(name = "",
+                        values = c("#FFC300", "#F5191C", "#3B99B1", "black", "black"),
+                        labels = c("miao_nulltr",
+                                   bquote("multicali_L2,"~R^2~"="~
+                                            .(round(multcali_results_L2$R2*100,0))~"%"),
+                                   "naive",
+                                   bquote("worstcase"~R^2~" = 1, lower"),
+                                   bquote("worstcase"~R^2~" = 1, upper"))) +
+    scale_x_continuous(breaks = 1:k, labels = order_name,
+                       limits = c(0.5,k + 0.5)) +
+    labs(y = "estimates") +
+    theme_bw(base_size = 14) +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(size = 13, angle = 75, hjust = 1),
+          legend.text.align = 0,
+          legend.title = element_text(size=10))
+print(plot_L2NullWorst)
+```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;" />

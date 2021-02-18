@@ -58,23 +58,32 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # execute worst-case calibration #
-est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "worstcase", R2 = c(0.6, 1))
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "worstcase", R2 = c(0.6, 1))
 # visualize #
-plot_estimates(est1$est_df)
+plot_estimates(est_g1)
+# calculate robustness value #
+rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
+print(rv)
 
 # execute multivariate calibration #
-est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                      calitype = "multicali", penalty_weight = c(0, 15))
+est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+                     calitype = "multicali", penalty_weight = c(0, 15))
 # visualize #
-plot_estimates(est2$est_df)
+plot_estimates(est_g2)
 
 # execute user-specified calibration #
-est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "null", gamma = c(0.96, -0.29, 0),
-                      R2 = c(0.3, 0.7, 1))
+est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = c(0.96, -0.29, 0),
+                     R2 = c(0.3, 0.7, 1))
 # visualize #
-plot_estimates(est3$est_df)
+plot_estimates(est_g3)
+# apply gamma that maximizes the bias for the first contrast considered in est_g1 #
+est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = est_g1$gamma[1,],
+                     R2 = c(0.3, 0.7, 1))
+# visualize #
+plot_estimates(est_g4)
 ```
 
 ### Example for analysis with binary outcomes
@@ -152,7 +161,7 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
 
 Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects of Miao et al. (2020) with the null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively. In the plot below, the blue, green and yellow bars are closely grouped together for majority of treatments.
 
-```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
+```{r, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 order_name <- rownames(multcali_results_L2$est_df)[order(multcali_results_L2$est_df[,2])]
 summary_df <- data.frame(uncali = round(multcali_results_L2$est_df[order_name, 1], 3),
                          multicali_L1 = round(multcali_results_L1$est_df[order_name, 2], 3),
@@ -186,10 +195,10 @@ plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
 print(plot_L1L2Null)
 ```
 
-We also explore the worst-case ignorance region for each treatment under the Gaussian copula assumption. Even though, this assumption may not hold in practice, we can still see in the plot that 16/17 of Miao et al. (2020)'s causal estimates with null treatment assumption ("miao$\_$nulltr") are covered by our ignorance region ("worstcase $R^2 = 1$, lower"; "worstcase $R^2 = 1$, upper"). The only exception, ``2010002N04Rik", whose causal effects by Miao et al. (2020) is, nevertheless, quite close to the lower bound.
+We also explore the worst-case ignorance region for each treatment under the Gaussian copula assumption. Even though, this assumption may not hold in practice, we can still see in the plot that 16/17 of Miao et al. (2020)'s causal estimates with null treatment assumption ("miao$\_$nulltr") are covered by our ignorance region ("worstcase $R^2 = 1$, lower"; "worstcase $R^2 = 1$, upper"). The only exception, "2010002N04Rik", whose causal effects by Miao et al. (2020) is, nevertheless, quite close to the lower bound.
 
 
-```{r, echo = FALSE, fig.width=11.8, fig.height=5.5, out.width = "100%"}
+```{r, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 bound_df <- tibble(x1 = 1:nrow(summary_df),
                  y1 = summary_df$worstcase_lwr,
                  x2 = 1:nrow(summary_df),
