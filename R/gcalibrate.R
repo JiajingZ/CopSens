@@ -35,8 +35,14 @@
 #'   \item{\code{est_df}}{a \code{data.frame} with naive and calibrated estimates of average treatment effects.}
 #'   \item{\code{R2}}{a vector of \eqn{R^2} with elements corresponding to columns of \code{est_df}.}
 #' }
-#' In addition, if \code{calitype = "multicali"}, components \code{gamma} will be returned, whose columns
-#' are optimized gamma, respectively resulting in estimates in columns of \code{est_df}.
+#' In addition, if \code{calitype = "multicali"} or \code{"worstcase"},
+#' components \code{gamma} will be returned.
+#' \itemize{
+#'   \item When \code{calitype = "multicali"}, optimized gamma are in columns,
+#'   respectively resulting in estimates in columns of \code{est_df}.
+#'   \item When \code{calitype = "worstcase"}, gamma are in rows,
+#'   which respectively lead to the worstcase ignorance region for each contrast of interest.
+#' }
 #
 #' @export
 #'
@@ -44,19 +50,27 @@
 #' # load the example data #
 #' y <- GaussianT_GaussianY$y
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
+#'
 #' # worst-case calibration #
-#' est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                       calitype = "worstcase", R2 = c(0.6, 1))
-#' plot_estimates(est1$est_df)
+#' est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+#'                      calitype = "worstcase", R2 = c(0.6, 1))
+#' plot_estimates(est_g1)
+#'
 #' # multivariate calibration #
-#' est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-#'                       calitype = "multicali", penalty_weight = c(0, 15))
-#' plot_estimates(est2$est_df)
+#' est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+#'                      calitype = "multicali", penalty_weight = c(0, 15))
+#' plot_estimates(est_g2)
+#'
 #' # user-specified calibration #
-#' est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                       calitype = "null", gamma = c(0.96, -0.29, 0),
-#'                       R2 = c(0.3, 0.7, 1))
-#' plot_estimates(est3$est_df)
+#' est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+#'                      calitype = "null", gamma = c(0.96, -0.29, 0),
+#'                      R2 = c(0.3, 0.7, 1))
+#' plot_estimates(est_g3)
+#' # apply gamma that maximizes the bias for the first contrast considered in est_g1 #
+#' est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+#'                      calitype = "null", gamma = est_g1$gamma[1,],
+#'                      R2 = c(0.3, 0.7, 1))
+#' plot_estimates(est_g4)
 
 gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "null"),
                       mu_y_dt = NULL, sigma_y_t = NULL,
@@ -104,7 +118,9 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
     est_df <- matrix(rep(mu_y_dt, times = 2*length(R2)+1), nrow = length(mu_y_dt)) + bias
     colnames(est_df) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
                                                    rep(c('_lwr', '_upr'), times = length(R2)))))
-    list(est_df = data.frame(est_df), R2 = R2)
+    gamma <- t(cov_halfinv %*%
+      apply(mu_u_dt %*% cov_halfinv , 1, function(x) sigma_y_t*x/sqrt(sum(x^2))))
+    list(est_df = data.frame(est_df), R2 = R2, gamma = gamma)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")

@@ -64,8 +64,14 @@ constraints on its magnitude. By default, \code{penalty_weight = 0}.}
   \item{\code{est_df}}{a \code{data.frame} with naive and calibrated estimates of average treatment effects.}
   \item{\code{R2}}{a vector of \eqn{R^2} with elements corresponding to columns of \code{est_df}.}
 }
-In addition, if \code{calitype = "multicali"}, components \code{gamma} will be returned, whose columns
-are optimized gamma, respectively resulting in estimates in columns of \code{est_df}.
+In addition, if \code{calitype = "multicali"} or \code{"worstcase"},
+components \code{gamma} will be returned.
+\itemize{
+  \item When \code{calitype = "multicali"}, optimized gamma are in columns,
+  respectively resulting in estimates in columns of \code{est_df}.
+  \item When \code{calitype = "worstcase"}, gamma are in rows,
+  which respectively lead to the worstcase ignorance region for each contrast of interest.
+}
 }
 \description{
 Calibrates the naive estimates to account for unobserved confounding when outcome
@@ -77,17 +83,25 @@ or multivariate calibration for multiple contrasts.
 # load the example data #
 y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
+
 # worst-case calibration #
-est1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "worstcase", R2 = c(0.6, 1))
-plot_estimates(est1$est_df)
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "worstcase", R2 = c(0.6, 1))
+plot_estimates(est_g1)
+
 # multivariate calibration #
-est2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                      calitype = "multicali", penalty_weight = c(0, 15))
-plot_estimates(est2$est_df)
+est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+                     calitype = "multicali", penalty_weight = c(0, 15))
+plot_estimates(est_g2)
+
 # user-specified calibration #
-est3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                      calitype = "null", gamma = c(0.96, -0.29, 0),
-                      R2 = c(0.3, 0.7, 1))
-plot_estimates(est3$est_df)
+est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = c(0.96, -0.29, 0),
+                     R2 = c(0.3, 0.7, 1))
+plot_estimates(est_g3)
+# apply gamma that maximizes the bias for the first contrast considered in est_g1 #
+est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+                     calitype = "null", gamma = est_g1$gamma[1,],
+                     R2 = c(0.3, 0.7, 1))
+plot_estimates(est_g4)
 }
