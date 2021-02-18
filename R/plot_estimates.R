@@ -34,26 +34,8 @@ plot_estimates <- function(est) {
       gather(key = "Type", value = "effect", - case)
   }
 
-
-
-  # labels <- as.character(c(0, results$R2))
-  # label_init <- levels(factor(df$Type))
-  # if (length(gregexpr('_', label_init[2])[[1]]) > 1) {
-  #   labels <- rep(0, length(label_init))
-  #   for (i in 2:length(label_init)) {
-  #     # extract the initial position
-  #     initial.position = gregexpr('_', label_init[i])[[1]][1] + 1
-  #     # extract the final position
-  #     final.position = gregexpr('_', label_init[i])[[1]][2] - 1
-  #     # extract the substring between the initial and final positions, inclusively
-  #     labels[i] = substr(label_init[i], initial.position, final.position)
-  #   }
-  # } else {
-  #   labels <- sub('...', '', label_init)
-  # }
-
   ggplot(df) +
-    ungeviz::geom_hpline(aes(x = case, y = effect, col = Type), width = 0.5, size = 1.5)  +
+    ungeviz::geom_hpline(aes(x = case, y = effect, col = Type), width = 0.05*length(case), size = 1.5)  +
     geom_segment(data = bound_df, aes(x=x1,y=y1,xend=x2,yend=y2), size = 0.3) +
     labs(y = "estimates") +
     scale_x_continuous(breaks = unique(case), labels = as.character(unique(case)),

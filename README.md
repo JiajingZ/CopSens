@@ -70,7 +70,7 @@ rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
 #> Observed outcome model fitted by simple linear regression with default.
 print(rv)
 #>        1        2     1698 
-#> "0.2968" "0.3395" "robust"
+#> "0.2968" "0.3403" "robust"
 
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
