@@ -8,7 +8,8 @@
 
 `CopSens` implements the copula-based sensitivity analysis method, as
 discussed in [Copula-based Sensitivity Analysis for Multi-Treatment
-CausalInference with Unobserved Confounding](), with Gaussian copula
+CausalInference with Unobserved
+Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula
 adopted in particular.
 
 ## Installation
@@ -70,7 +71,7 @@ rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
 #> Observed outcome model fitted by simple linear regression with default.
 print(rv)
 #>        1        2     1698 
-#> "0.2968" "0.3403" "robust"
+#> "0.2968" "0.3407" "robust"
 
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
@@ -181,7 +182,8 @@ sigma_y_t_hat <- sigma(lmfit_y_t)
 
 We explore the ignorance regions for each treatment as well as causal
 estimates with multiple contrast criteria (MCCs) using the method
-described in [cite-paper]().
+described in [Zheng, D’Amour and Franks
+(2021)](https://arxiv.org/abs/2102.09412).
 
 ``` r
 k <- ncol(tr)

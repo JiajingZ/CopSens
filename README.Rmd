@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-`CopSens` implements the copula-based sensitivity analysis method, as discussed in [Copula-based Sensitivity Analysis for Multi-Treatment CausalInference with Unobserved Confounding](), with Gaussian copula adopted in particular.
+`CopSens` implements the copula-based sensitivity analysis method, as discussed in [Copula-based Sensitivity Analysis for Multi-Treatment CausalInference with Unobserved Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula adopted in particular.
 
 
 ## Installation
@@ -133,7 +133,7 @@ names(beta_t) <- colnames(tr)
 sigma_y_t_hat <- sigma(lmfit_y_t)
 ```
 
-We explore the ignorance regions for each treatment as well as causal estimates with multiple contrast criteria (MCCs) using the method described in [cite-paper]().
+We explore the ignorance regions for each treatment as well as causal estimates with multiple contrast criteria (MCCs) using the method described in [Zheng, D'Amour and Franks (2021)](https://arxiv.org/abs/2102.09412).
 
 ```{r}
 k <- ncol(tr)
