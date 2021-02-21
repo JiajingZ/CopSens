@@ -184,11 +184,12 @@ u_t_diff <- (t1 - t2) %*% t(coef_mu_u_t_hat)
 
 # worst-case calibration #
 R2 <- c(0.3, 0.6, 1)
-beta_cali_worstcase <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
+worstcase_results <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
-                                  mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)$est_df
+                                  mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)
 #> Worst-case calibration executed.
-rownames(beta_cali_worstcase) <- names(beta_t)
+rownames(worstcase_results$est_df) <- names(beta_t)
+names(worstcase_results$rv) <- names(beta_t)
 
 ## multivariate calibration ##
 # with L1 norm #
@@ -220,8 +221,8 @@ summary_df <- data.frame(uncali = round(multcali_results_L2$est_df[order_name, 1
                          multicali_L2 = round(multcali_results_L2$est_df[order_name, 2], 3),
                          miao_nulltr =  mice_est_nulltr[order_name,]$esti,
                          miao_nulltr_sig = mice_est_nulltr[order_name,]$signif,
-                         worstcase_lwr = beta_cali_worstcase[order_name, 'R2_1_lwr'],
-                         worstcase_upr = beta_cali_worstcase[order_name, 'R2_1_upr'])
+                         worstcase_lwr = worstcase_results$est_df[order_name, 'R2_1_lwr'],
+                         worstcase_upr = worstcase_results$est_df[order_name, 'R2_1_upr'])
 rownames(summary_df) <- order_name
 plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
   gather(key = "Type", value = "effect", - case) %>%
@@ -238,7 +239,7 @@ plot_L1L2Null <- data.frame(summary_df[,c(1:4)], case = 1:nrow(summary_df)) %>%
                                  "naive")) +
   scale_x_continuous(breaks = 1:k, labels = order_name,
                      limits = c(0.5,k + 0.5)) +
-  labs(y = "estimates") +
+  labs(y = "Causal Effect", x = "") +
   theme_bw(base_size = 14) +
   theme(plot.title = element_text(hjust = 0.5),
         axis.text.x = element_text(size = 13, angle = 75, hjust = 1),
@@ -259,12 +260,12 @@ The only exception, “2010002N04Rik”, whose causal effects by Miao et
 al. (2020) is, nevertheless, quite close to the lower bound.
 
 ``` r
-bound_df <- tibble(x1 = 1:nrow(summary_df),
+bound_df <- tibble(x1 = 1:nrow(summary_df)*2,
                  y1 = summary_df$worstcase_lwr,
-                 x2 = 1:nrow(summary_df),
+                 x2 = 1:nrow(summary_df)*2,
                  y2 = summary_df$worstcase_upr)
 plot_L2NullWorst <-
-  data.frame(summary_df[,c(1,3,4,6:7)], case = 1:nrow(summary_df)) %>%
+  data.frame(summary_df[,c(1,3,4,6:7)], case = 1:nrow(summary_df)*2) %>%
     gather(key = "Type", value = "effect", - case) %>%
     ggplot() +
     ungeviz::geom_hpline(aes(x = case, y = effect, col = Type),
@@ -278,9 +279,11 @@ plot_L2NullWorst <-
                                    "naive",
                                    bquote("worstcase"~R^2~" = 1, lower"),
                                    bquote("worstcase"~R^2~" = 1, upper"))) +
-    scale_x_continuous(breaks = 1:k, labels = order_name,
-                       limits = c(0.5,k + 0.5)) +
-    labs(y = "estimates") +
+    scale_x_continuous(breaks = (1:k)*2, labels = order_name,
+                       limits = c(0.5, k*2 + 1.2)) +
+    annotate(geom = "text", x = 1:nrow(summary_df)*2 + 1.1, y = worstcase_results$est_df[order_name,'R2_0'],
+                      size = 3, label = worstcase_results$rv[order_name]) +
+    labs(y = "Causal Effect", x = "") +
     theme_bw(base_size = 14) +
     theme(plot.title = element_text(hjust = 0.5),
           axis.text.x = element_text(size = 13, angle = 75, hjust = 1),

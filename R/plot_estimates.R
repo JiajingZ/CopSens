@@ -49,10 +49,8 @@ plot_estimates <- function(est, show_rv = TRUE) {
 
   # add robustness value #
   if(!is.null(est$rv) & show_rv) {
-    rv_label <- est$rv
-    rv_label[est$rv!="robust"] <- paste0(as.numeric(est$rv[est$rv!="robust"])*100, "%")
     plot + annotate(geom = "text", x = case + 0.3, y = est_df[,'R2_0'],
-                    size = 3, label = rv_label)
+                    size = 3, label = est$rv)
   } else {
     plot
   }
