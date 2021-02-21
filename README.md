@@ -51,28 +51,19 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # execute worst-case calibration #
-est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[c(1,2,1698),], tr[c(3,4,6698),],
                      calitype = "worstcase", R2 = c(0.6, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> Worst-case calibration executed.
 # visualize #
-plot_estimates(est_g1)
+plot_estimates(est_g1, show_rv = TRUE)
 ```
 
 <img src="man/figures/README-gaussian-outcome-example-1.png" width="85%" style="display: block; margin: auto;" />
 
 ``` r
-# calculate robustness value #
-rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
-#> Fitting the latent confounder model by PPCA with default.
-#> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
-#> Observed outcome model fitted by simple linear regression with default.
-print(rv)
-#>        1        2     1698 
-#> "0.2968" "0.3407" "robust"
-
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
                      calitype = "multicali", penalty_weight = c(0, 15))

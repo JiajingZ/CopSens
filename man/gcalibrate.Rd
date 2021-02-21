@@ -63,14 +63,14 @@ constraints on its magnitude. By default, \code{penalty_weight = 0}.}
 \describe{
   \item{\code{est_df}}{a \code{data.frame} with naive and calibrated estimates of average treatment effects.}
   \item{\code{R2}}{a vector of \eqn{R^2} with elements corresponding to columns of \code{est_df}.}
-}
-In addition, if \code{calitype = "multicali"} or \code{"worstcase"},
-components \code{gamma} will be returned.
-\itemize{
-  \item When \code{calitype = "multicali"}, optimized gamma are in columns,
+  \item{\code{gamma}}{a matrix returned when \code{calitype = "multicali"} or \code{"worstcase"}.
+  If \code{calitype = "multicali"}, optimized gamma are in columns,
   respectively resulting in estimates in columns of \code{est_df}.
-  \item When \code{calitype = "worstcase"}, gamma are in rows,
-  which respectively lead to the worstcase ignorance region for each contrast of interest.
+  If \code{calitype = "worstcase"}, gamma are in rows,
+  which respectively lead to the worstcase ignorance region for each contrast of interest.}
+  \item{\code{rv}}{a \code{character vector} returned when \code{calitype = "worstcase"},
+  with elements being the robustness value or "robust" if the ignorance region doesn't
+  contains 0 for each contrast of interest.}
 }
 }
 \description{

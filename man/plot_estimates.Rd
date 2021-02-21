@@ -4,12 +4,15 @@
 \alias{plot_estimates}
 \title{Visualize Estimates of Treatment Effects}
 \usage{
-plot_estimates(est)
+plot_estimates(est, show_rv = TRUE)
 }
 \arguments{
 \item{est}{an return object from \code{\link{gcalibrate}} or \code{\link{bcalibrate}}, or
 \code{data.frame} containing estimates of treatment effects with estimates' type in columns and
 contrasts of interest in rows.}
+
+\item{show_rv}{logical. Whether robustness values should be printed in the plot or not?
+Available only for the "worstcase" calibration.}
 }
 \description{
 Visualize Estimates of Treatment Effects

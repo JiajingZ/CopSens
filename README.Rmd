@@ -58,13 +58,10 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # execute worst-case calibration #
-est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[c(1,2,1698),], tr[c(3,4,6698),],
                      calitype = "worstcase", R2 = c(0.6, 1))
 # visualize #
-plot_estimates(est_g1)
-# calculate robustness value #
-rv <- cal_rv(y = y, tr = tr, t1 = tr[c(1,2,1698),], t2 = tr[c(3,4,6698),])
-print(rv)
+plot_estimates(est_g1, show_rv = TRUE)
 
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
