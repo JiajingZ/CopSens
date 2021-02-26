@@ -122,9 +122,9 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       apply(mu_u_dt %*% cov_halfinv , 1, function(x) sigma_y_t*x/sqrt(sum(x^2))))
     rv_init <- (c(mu_y_dt^2) / apply(mu_u_dt %*% cov_halfinv, 1, function(x) sum(x^2)) /
              sigma_y_t^2) %>% round(digits = 4)
-    rv <- rv_init
-    rv[rv_init <= 1] <- paste0(rv_init[rv_init <= 1]*100, "%")
-    rv[rv_init > 1] <- "robust"
+    rv <- rv_init * 100
+    #rv[rv_init <= 1] <- paste0(rv_init[rv_init <= 1]*100, "%")
+    rv[rv > 100] <- NA # "robust"
     list(est_df = data.frame(est_df), R2 = R2, gamma = gamma, rv = rv)
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
