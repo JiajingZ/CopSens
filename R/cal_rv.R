@@ -64,7 +64,7 @@ cal_rv <- function(y, tr, t1, t2,
   }
   rv <- (c(mu_y_dt^2) / apply(mu_u_dt %*% cov_halfinv, 1, function(x) sum(x^2)) /
            sigma_y_t^2) %>% round(digits = 4)
-  rv[rv > 1] <- "robust"
+  rv[rv > 1] <- NA
   rv
 }
 
