@@ -86,7 +86,7 @@ tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # worst-case calibration #
 est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                     calitype = "worstcase", R2 = c(0.6, 1))
+                     calitype = "worstcase", R2 = c(0.3, 1))
 plot_estimates(est_g1)
 
 # multivariate calibration #
@@ -97,11 +97,11 @@ plot_estimates(est_g2)
 # user-specified calibration #
 est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                      calitype = "null", gamma = c(0.96, -0.29, 0),
-                     R2 = c(0.3, 0.7, 1))
+                     R2 = c(0.2, 0.6, 1))
 plot_estimates(est_g3)
 # apply gamma that maximizes the bias for the first contrast considered in est_g1 #
 est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                      calitype = "null", gamma = est_g1$gamma[1,],
-                     R2 = c(0.3, 0.7, 1))
+                     R2 = c(0.2, 0.6, 1))
 plot_estimates(est_g4)
 }

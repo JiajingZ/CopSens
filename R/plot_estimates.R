@@ -16,6 +16,7 @@
 #' region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 #' smallest to largest.
 #' @param labeles character. Labels of treatments.
+#' @param ... further arguments passed to \code{\link{ggplot::theme}}
 #'
 #'
 #' @export

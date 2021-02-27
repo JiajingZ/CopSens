@@ -52,7 +52,7 @@ tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # execute worst-case calibration #
 est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[c(1,2,1698),], tr[c(3,4,6698),],
-                     calitype = "worstcase", R2 = c(0.6, 1))
+                     calitype = "worstcase", R2 = c(0.3, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
@@ -82,7 +82,7 @@ plot_estimates(est_g2)
 # execute user-specified calibration #
 est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                      calitype = "null", gamma = c(0.96, -0.29, 0),
-                     R2 = c(0.3, 0.7, 1))
+                     R2 = c(0.2, 0.6, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
@@ -97,7 +97,7 @@ plot_estimates(est_g3)
 # apply gamma that maximizes the bias for the first contrast considered in est_g1 #
 est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
                      calitype = "null", gamma = est_g1$gamma[1,],
-                     R2 = c(0.3, 0.7, 1))
+                     R2 = c(0.2, 0.6, 1))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
@@ -120,11 +120,11 @@ t2 <- rep(0, times = ncol(tr))
 # calibrate #
 est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
                      gamma = c(1.27, -0.28, 0),
-                     R2 = c(0.5, 0.7))$est_df
+                     R2 = c(0.2, 0.7))$est_df
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple probit model with default.
-#> R2 =  0.5 , calibrating observation 1  2  3  4  5  6  
+#> R2 =  0.2 , calibrating observation 1  2  3  4  5  6  
 #> R2 =  0.7 , calibrating observation 1  2  3  4  5  6
 # calculate risk ratio estimator #
 rr_df <- est_df[1:5,] / as.numeric(est_df[6,])

@@ -38,7 +38,7 @@
 #' # calibration #
 #' est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
 #'                     gamma = c(1.27, -0.28, 0),
-#'                     R2 = c(0.5, 0.7))
+#'                     R2 = c(0.2, 0.7))
 #' rr_df <- est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,])
 #' plot_estimates(rr_df)
 

@@ -24,6 +24,8 @@ within the positive robust group, order treatments by the lower bound of the wor
 region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 smallest to largest.}
 
+\item{...}{further arguments passed to \code{\link{ggplot::theme}}}
+
 \item{labeles}{character. Labels of treatments.}
 }
 \description{
