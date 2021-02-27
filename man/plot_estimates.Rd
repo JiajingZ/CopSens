@@ -4,7 +4,7 @@
 \alias{plot_estimates}
 \title{Visualize Estimates of Treatment Effects}
 \usage{
-plot_estimates(est, show_rv = TRUE)
+plot_estimates(est, show_rv = TRUE, order = "naive", labels = NULL, ...)
 }
 \arguments{
 \item{est}{an return object from \code{\link{gcalibrate}} or \code{\link{bcalibrate}}, or
@@ -13,6 +13,18 @@ contrasts of interest in rows.}
 
 \item{show_rv}{logical. Whether robustness values should be printed in the plot or not?
 Available only for the "worstcase" calibration.}
+
+\item{order}{character. The type of order used to plot treatment effects from left to right.
+Can be one of the following:\cr
+"naive" - order by the naive estimate from smallest to largest.
+"worstcase" - place all treatments with negative robust effects on the left, with positive robust
+effects on the right, and all sensitive ones in the middle. Within the negative robust group, order
+treatments by the upper bound of the worst-case ignorance region from smallest to largest;
+within the positive robust group, order treatments by the lower bound of the worst-case ignorance
+region from smallest to largest; and within the sensitive group, order by  the naive estimate from
+smallest to largest.}
+
+\item{labeles}{character. Labels of treatments.}
 }
 \description{
 Visualize Estimates of Treatment Effects

@@ -6,6 +6,17 @@
 #'
 #' @param show_rv logical. Whether robustness values should be printed in the plot or not?
 #' Available only for the "worstcase" calibration.
+#' @param order character. The type of order used to plot treatment effects from left to right.
+#' Can be one of the following:\cr
+#' "naive" - order by the naive estimate from smallest to largest.
+#' "worstcase" - place all treatments with negative robust effects on the left, with positive robust
+#' effects on the right, and all sensitive ones in the middle. Within the negative robust group, order
+#' treatments by the upper bound of the worst-case ignorance region from smallest to largest;
+#' within the positive robust group, order treatments by the lower bound of the worst-case ignorance
+#' region from smallest to largest; and within the sensitive group, order by  the naive estimate from
+#' smallest to largest.
+#' @param labeles character. Labels of treatments.
+#'
 #'
 #' @export
 #'
@@ -13,8 +24,8 @@
 #' Please see \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
 
 plot_estimates <- function(est, show_rv = TRUE,
-                           order = "naive", labels=NULL) {
-  
+                           order = "naive", labels = NULL, ...) {
+
   if(is.list(est) & (!is.data.frame(est))) {
     est_df <- est$est_df
     R2 <- round(c(0, sort(est$R2)), 2)
@@ -81,8 +92,9 @@ plot_estimates <- function(est, show_rv = TRUE,
     est$rv[!is.na(est$rv)] <- paste0(round(est$rv[!is.na(est$rv)]), "%")
     est$rv[is.na(est$rv)] <- "R"
 
-    plot + annotate(geom = "text", x = case + 0.4, y = est_df[,'R2_0'],
-                    size = 3, label = est$rv, col="dark red")
+    plot + annotate(geom = "text", x = case +0.1 + 0.02*length(case), y = est_df[,'R2_0'],
+                    size = 3, label = est$rv, col="dark red") +
+      theme(...)
   } else {
     plot
   }

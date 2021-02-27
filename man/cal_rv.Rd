@@ -41,7 +41,7 @@ with latent variables in columns.}
 \item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}}}
 }
 \value{
-A \code{character vector} with elements being the robustness value or "robust" if the ignorance region doesn't
+A \code{numeric vector} with elements being the robustness value or \code{NA} if the ignorance region doesn't
 contains 0 for each contrast of interest.
 }
 \description{

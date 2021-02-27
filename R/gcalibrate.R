@@ -39,8 +39,8 @@
 #'   respectively resulting in estimates in columns of \code{est_df}.
 #'   If \code{calitype = "worstcase"}, gamma are in rows,
 #'   which respectively lead to the worstcase ignorance region for each contrast of interest.}
-#'   \item{\code{rv}}{a \code{character vector} returned when \code{calitype = "worstcase"},
-#'   with elements being the robustness value or "robust" if the ignorance region doesn't
+#'   \item{\code{rv}}{a \code{numeric vector} returned when \code{calitype = "worstcase"},
+#'   with elements being the robustness value or \code{NA} if the ignorance region doesn't
 #'   contains 0 for each contrast of interest.}
 #' }
 #
@@ -114,7 +114,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
   if (calitype == "worstcase") {
     message("Worst-case calibration executed.")
     bias <- sigma_y_t * apply(mu_u_dt %*% cov_halfinv, 1, function(x) sqrt(sum(x^2))) %o%
-            c(0, rep(R2, each = 2)*rep(c(-1, 1), times = length(R2)))
+            c(0, rep(sqrt(R2), each = 2)*rep(c(-1, 1), times = length(R2)))
     est_df <- matrix(rep(mu_y_dt, times = 2*length(R2)+1), nrow = length(mu_y_dt)) + bias
     colnames(est_df) <- paste0("R2_", c(0, paste0(rep(R2, each = 2),
                                                    rep(c('_lwr', '_upr'), times = length(R2)))))

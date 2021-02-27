@@ -15,7 +15,7 @@
 #' @param cov_u_t an optional covariance matrix of confounders conditional on treatments.
 #' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}}
 #'
-#' @return A \code{character vector} with elements being the robustness value or "robust" if the ignorance region doesn't
+#' @return A \code{numeric vector} with elements being the robustness value or \code{NA} if the ignorance region doesn't
 #' contains 0 for each contrast of interest.
 #' @export
 #' @examples

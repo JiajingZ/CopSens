@@ -183,14 +183,20 @@ t2 <- matrix(0, ncol = k, nrow = k)
 u_t_diff <- (t1 - t2) %*% t(coef_mu_u_t_hat)
 
 # worst-case calibration #
-R2 <- c(0.3, 0.6, 1)
+R2 <- c(0.15, 0.5, 1)
 worstcase_results <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "worstcase",
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, R2 = R2)
 #> Worst-case calibration executed.
 rownames(worstcase_results$est_df) <- names(beta_t)
 names(worstcase_results$rv) <- names(beta_t)
+plot_estimates(worstcase_results, order = "worstcase", labels = names(beta_t),
+               axis.text.x = element_text(size = 10, angle = 75, hjust = 1))
+```
 
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="85%" style="display: block; margin: auto;" />
+
+``` r
 ## multivariate calibration ##
 # with L1 norm #
 multcali_results_L1 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali",
@@ -260,16 +266,19 @@ The only exception, “2010002N04Rik”, whose causal effects by Miao et
 al. (2020) is, nevertheless, quite close to the lower bound.
 
 ``` r
-bound_df <- tibble(x1 = 1:nrow(summary_df)*2,
+bound_df <- tibble(x1 = 1:nrow(summary_df),
                  y1 = summary_df$worstcase_lwr,
-                 x2 = 1:nrow(summary_df)*2,
+                 x2 = 1:nrow(summary_df),
                  y2 = summary_df$worstcase_upr)
+rv_labels <- worstcase_results$rv
+rv_labels[!is.na(worstcase_results$rv)] <- paste0(round(worstcase_results$rv[!is.na(worstcase_results$rv)]), "%")
+rv_labels[is.na(worstcase_results$rv)] <- "R"
 plot_L2NullWorst <-
-  data.frame(summary_df[,c(1,3,4,6:7)], case = 1:nrow(summary_df)*2) %>%
+  data.frame(summary_df[,c(1,3,4,6:7)], case = 1:nrow(summary_df)) %>%
     gather(key = "Type", value = "effect", - case) %>%
     ggplot() +
     ungeviz::geom_hpline(aes(x = case, y = effect, col = Type),
-                         width = 0.5, size = 1, alpha = 0.8)  +
+                         width = 0.4, size = 1, alpha = 0.8)  +
     geom_segment(data = bound_df, aes(x=x1, y=y1, xend=x2, yend=y2)) +
     scale_colour_manual(name = "",
                         values = c("#FFC300", "#F5191C", "#3B99B1", "black", "black"),
@@ -279,10 +288,10 @@ plot_L2NullWorst <-
                                    "naive",
                                    bquote("worstcase"~R^2~" = 1, lower"),
                                    bquote("worstcase"~R^2~" = 1, upper"))) +
-    scale_x_continuous(breaks = (1:k)*2, labels = order_name,
-                       limits = c(0.5, k*2 + 1.2)) +
-    annotate(geom = "text", x = 1:nrow(summary_df)*2 + 1.1, y = worstcase_results$est_df[order_name,'R2_0'],
-                      size = 3, label = worstcase_results$rv[order_name]) +
+    scale_x_continuous(breaks = (1:k), labels = order_name,
+                       limits = c(1, k + 1.2)) +
+    annotate(geom = "text", x = 1:nrow(summary_df) + 0.4, y = worstcase_results$est_df[order_name,'R2_0'],
+                      size = 3, label = rv_labels[order_name]) +
     labs(y = "Causal Effect", x = "") +
     theme_bw(base_size = 14) +
     theme(plot.title = element_text(hjust = 0.5),

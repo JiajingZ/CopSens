@@ -68,8 +68,8 @@ constraints on its magnitude. By default, \code{penalty_weight = 0}.}
   respectively resulting in estimates in columns of \code{est_df}.
   If \code{calitype = "worstcase"}, gamma are in rows,
   which respectively lead to the worstcase ignorance region for each contrast of interest.}
-  \item{\code{rv}}{a \code{character vector} returned when \code{calitype = "worstcase"},
-  with elements being the robustness value or "robust" if the ignorance region doesn't
+  \item{\code{rv}}{a \code{numeric vector} returned when \code{calitype = "worstcase"},
+  with elements being the robustness value or \code{NA} if the ignorance region doesn't
   contains 0 for each contrast of interest.}
 }
 }
