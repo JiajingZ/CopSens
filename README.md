@@ -139,10 +139,16 @@ plot_estimates(rr_df)
 For further illustration, we compare our approach to a recent analysis
 of a mouse obesity dataset [(Wang et
 al. (2006))](https://doi.org/10.1371/journal.pgen.0020015), conducted by
-[Miao et al. (2020)](https://arxiv.org/abs/2011.04504). In particular,
-we consider the comparison to their null treatments approach, which
-assumes that at least half of the confounded treatments have no causal
-effect on the outcome.
+[Miao et al. (2020)](https://arxiv.org/abs/2011.04504), where the effect
+of gene expressions on the body weight of F2 mice is of interest. The
+data are collected from 287 mice, including the body weight, 37 gene
+expressions, and 5 single nucleotide polymorphisms. Among these 37
+genes, 17 are likely to affect mouse weight ([Lin et
+al. (2015)](https://pubmed.ncbi.nlm.nih.gov/26392642/)). In our example
+here, we focus on estimating the treatment effects of these 17 genes,
+and consider the comparison to the null treatments approach from Miao et
+al. (2020), which assumes that at least half of the confounded
+treatments have no causal effect on the outcome.
 
 ``` r
 # load the data #
