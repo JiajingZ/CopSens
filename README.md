@@ -215,9 +215,9 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
 Below, we visualize the analysis results. The Spearman’s rank
 correlation between the estimated treatment effects of Miao et
 al. (2020) with the null treatment assumption (“miao\_nulltr”) and ones
-by our MCC procedure with either the L1 (“multicali\_L1”) or L2
-minimization (“multicali\_L2”) is 0.93. In the plot below, the blue,
-green and yellow bars are closely grouped together for majority of
+by our MCC procedure with the L1 (“multicali\_L1”) or L2 minimization
+(“multicali\_L2”) is 0.90 or 0.93 respectively. In the plot below, the
+blue, green and yellow bars are closely grouped together for majority of
 treatments.
 
 ``` r

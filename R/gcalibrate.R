@@ -136,7 +136,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       for (i in 1:length(R2_constr)) {
         cat(R2_constr[i], " ")
         gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
-                                   R2_constr = R2_constr[i])#, ...)
+                                   R2_constr = R2_constr[i], ...)
         cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
         R2[i] <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
         gamma_mat[,i] <- gamma_opt
