@@ -16,7 +16,7 @@ gcalibrate(
   cov_u_t = NULL,
   R2 = 1,
   gamma = NULL,
-  penalty_weight = 0,
+  R2_constr = 1,
   ...
 )
 }
@@ -52,8 +52,8 @@ treatment that can be explained by confounders.}
 
 \item{gamma}{sensitivity parameter vector. Must be given when \code{calitype = "null"}.}
 
-\item{penalty_weight}{an optional scalar or vector specifying the penalty weight for \eqn{R^2} to place
-constraints on its magnitude. By default, \code{penalty_weight = 0}.}
+\item{R2_constr}{an optional scalar or vector specifying the upper limit constraint on \eqn{R^2} .
+By default, \code{R2_constr = 1}.}
 
 \item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 \code{\link{get_opt_gamma}}.}
@@ -91,7 +91,7 @@ plot_estimates(est_g1)
 
 # multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                     calitype = "multicali", penalty_weight = c(0, 15))
+                     calitype = "multicali", R2_constr = c(1, 0.15))
 plot_estimates(est_g2)
 
 # user-specified calibration #

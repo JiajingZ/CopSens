@@ -66,12 +66,12 @@ plot_estimates(est_g1, show_rv = TRUE)
 ``` r
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                     calitype = "multicali", penalty_weight = c(0, 15))
+                     calitype = "multicali", R2_constr = c(1, 0.15))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> Multivariate calibration executed.
-#> Calibrating with penalty_weight = 0  15
+#> Calibrating with R2_constr = 1  0.15
 # visualize #
 plot_estimates(est_g2)
 ```
@@ -203,21 +203,21 @@ multcali_results_L1 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L1")
 #> Multivariate calibration executed.
-#> Calibrating with penalty_weight = 0
+#> Calibrating with R2_constr = 1
 # with L2 norm #
 multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali", 
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 #> Multivariate calibration executed.
-#> Calibrating with penalty_weight = 0
+#> Calibrating with R2_constr = 1
 ```
 
 Below, we visualize the analysis results. The Spearman’s rank
 correlation between the estimated treatment effects of Miao et
 al. (2020) with the null treatment assumption (“miao\_nulltr”) and ones
-by our MCC procedure with the L1 (“multicali\_L1”) or L2 minimization
-(“multicali\_L2”) are 0.90 and 0.93 respectively. In the plot below, the
-blue, green and yellow bars are closely grouped together for majority of
+by our MCC procedure with either the L1 (“multicali\_L1”) or L2
+minimization (“multicali\_L2”) is 0.93. In the plot below, the blue,
+green and yellow bars are closely grouped together for majority of
 treatments.
 
 ``` r

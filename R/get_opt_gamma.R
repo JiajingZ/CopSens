@@ -19,36 +19,53 @@
 #'
 
 get_opt_gamma <- function(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
-                          penalty_weight = 0, gamma0 = NULL, n_iter = 100,
-                          normtype = "L2") {
-  # Objective function for Optimization #
-  objective <- function(gamma) {
-    cali <- mu_y_dt - mu_u_dt %*% gamma
-    R2 <- t(gamma) %*% cov_u_t %*% gamma / sigma_y_t^2
+                          R2_constr = 1, normtype = "L2") {
+
+    gamma <- CVXR::Variable(ncol(mu_u_dt))
     if (normtype == "L1") {
-      sum(abs(cali)) + penalty_weight * R2
+      # obj <- cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, 1)
+      obj <- sum(abs(mu_y_dt - mu_u_dt %*% gamma))
     } else if (normtype == "L2") {
-      sqrt(sum(cali^2)) + penalty_weight * R2
+      obj <- CVXR::cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, 2)
+      # obj <- sqrt(sum((mu_y_dt - mu_u_dt %*% gamma)^2))
     } else if (normtype == "Inf") {
-      max(abs(cali)) + penalty_weight * R2
+      # obj <- cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, "inf")
+      obj <- max(abs(mu_y_dt - mu_u_dt %*% gamma))
     } else {stop("Please specify a norm type.")}
-  }
-  latent_dim <- ncol(mu_u_dt)
-  if (is.null(gamma0)){
-    gamma0 <- rnorm(latent_dim)
-  }
-  gamma0_norm <- sqrt(sum(gamma0^2))
-  obj_min <- objective(gamma0)
-  gamma_opt <- gamma0
-  for (i in 1:n_iter) {
-    solution <- optim(par = gamma0, fn = objective, method = "BFGS")
-    if (solution$value < obj_min) {
-      obj_min <- solution$value
-      gamma_opt <- solution$par
-    }
-    gamma0 <- gamma0_norm * rnorm(latent_dim)
-  }
-  gamma_opt
+
+    constr <- list(CVXR::quad_form(gamma, cov_u_t/sigma_y_t^2) <= R2_constr)
+    prob <- CVXR::Problem(CVXR::Minimize(obj),  constr)
+    result <- CVXR::solve(prob)
+    return(result$getValue(gamma))
+
+  #   # Objective function for Optimization #
+  #   objective <- function(gamma) {
+  #   cali <- mu_y_dt - mu_u_dt %*% gamma
+  #   R2 <- t(gamma) %*% cov_u_t %*% gamma / sigma_y_t^2
+  #   if (normtype == "L1") {
+  #     sum(abs(cali)) + penalty_weight * R2
+  #   } else if (normtype == "L2") {
+  #     sqrt(sum(cali^2)) + penalty_weight * R2
+  #   } else if (normtype == "Inf") {
+  #     max(abs(cali)) + penalty_weight * R2
+  #   } else {stop("Please specify a norm type.")}
+  # }
+  # latent_dim <- ncol(mu_u_dt)
+  # if (is.null(gamma0)){
+  #   gamma0 <- rnorm(latent_dim)
+  # }
+  # gamma0_norm <- sqrt(sum(gamma0^2))
+  # obj_min <- objective(gamma0)
+  # gamma_opt <- gamma0
+  # for (i in 1:n_iter) {
+  #   solution <- optim(par = gamma0, fn = objective, method = "BFGS")
+  #   if (solution$value < obj_min) {
+  #     obj_min <- solution$value
+  #     gamma_opt <- solution$par
+  #   }
+  #   gamma0 <- gamma0_norm * rnorm(latent_dim)
+  # }
+  # gamma_opt
 }
 
 

@@ -65,7 +65,7 @@ plot_estimates(est_g1, show_rv = TRUE)
 
 # execute multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-                     calitype = "multicali", penalty_weight = c(0, 15))
+                     calitype = "multicali", R2_constr = c(1, 0.15))
 # visualize #
 plot_estimates(est_g2)
 
@@ -159,7 +159,7 @@ multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 ```
 
-Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects of Miao et al. (2020) with the null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") are 0.90 and 0.93 respectively. In the plot below, the blue, green and yellow bars are closely grouped together for majority of treatments.
+Below, we visualize the analysis results. The Spearman’s rank correlation between the estimated treatment effects of Miao et al. (2020) with the null treatment assumption ("miao$\_$nulltr") and ones by our MCC procedure with either the L1 ("multicali$\_$L1") or L2 minimization ("multicali$\_$L2") is 0.93. In the plot below, the blue, green and yellow bars are closely grouped together for majority of treatments.
 
 ```{r, fig.width=11.8, fig.height=5.5, out.width = "100%"}
 order_name <- rownames(multcali_results_L2$est_df)[order(multcali_results_L2$est_df[,2])]

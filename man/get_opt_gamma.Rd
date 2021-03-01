@@ -9,9 +9,7 @@ get_opt_gamma(
   mu_u_dt,
   cov_u_t,
   sigma_y_t,
-  penalty_weight = 0,
-  gamma0 = NULL,
-  n_iter = 100,
+  R2_constr = 1,
   normtype = "L2"
 )
 }
@@ -26,17 +24,17 @@ with latent variables in columns.}
 
 \item{sigma_y_t}{Scalar of the standard deviation of outcome conditional on treatments.}
 
-\item{penalty_weight}{scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.}
-
-\item{gamma0}{An optional vector with initial values of the sensitivity parameters to be optimized over.}
-
-\item{n_iter}{Number of times of optimization to execute.}
-
 \item{normtype}{character. Optional function \code{m} for the multivariate calibration criterion.
 By default, the L2 norm will be applied.\cr
 "L1" - apply the L1 norm, \code{sum(abs(x))}. \cr
 "L2" - apply the L2 norm, \code{sqrt(sum(x^2))}.\cr
 "Inf" - apply the infinity norm, \code{max(abs(x))}. \cr}
+
+\item{penalty_weight}{scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.}
+
+\item{gamma0}{An optional vector with initial values of the sensitivity parameters to be optimized over.}
+
+\item{n_iter}{Number of times of optimization to execute.}
 }
 \value{
 Optimized sensitivity parameters.

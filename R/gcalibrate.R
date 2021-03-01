@@ -25,8 +25,8 @@
 #' @param R2 an optional scalar or vector specifying the proportion of residual variance in outcome given the
 #' treatment that can be explained by confounders.
 #' @param gamma sensitivity parameter vector. Must be given when \code{calitype = "null"}.
-#' @param penalty_weight an optional scalar or vector specifying the penalty weight for \eqn{R^2} to place
-#' constraints on its magnitude. By default, \code{penalty_weight = 0}.
+#' @param R2_constr an optional scalar or vector specifying the upper limit constraint on \eqn{R^2} .
+#' By default, \code{R2_constr = 1}.
 #' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 #' \code{\link{get_opt_gamma}}.
 #'
@@ -58,7 +58,7 @@
 #'
 #' # multivariate calibration #
 #' est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
-#'                      calitype = "multicali", penalty_weight = c(0, 15))
+#'                      calitype = "multicali", R2_constr = c(1, 0.15))
 #' plot_estimates(est_g2)
 #'
 #' # user-specified calibration #
@@ -76,7 +76,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
                       mu_y_dt = NULL, sigma_y_t = NULL,
                       mu_u_dt = NULL, cov_u_t = NULL,
                       R2 = 1, gamma = NULL,
-                      penalty_weight = 0, ...) {
+                      R2_constr = 1, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by PPCA with default.")
@@ -129,23 +129,23 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
   } else if (calitype == "multicali" | calitype == "null") {
     if (calitype == "multicali") {
       message("Multivariate calibration executed.\n")
-      cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(penalty_weight))
-      R2 <- rep(NA, length(penalty_weight))
-      gamma <- matrix(NA, nrow = ncol(mu_u_dt), ncol = length(penalty_weight))
-      cat("Calibrating with penalty_weight = ")
-      for (i in 1:length(penalty_weight)) {
-        cat(penalty_weight[i], " ")
+      cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(R2_constr))
+      R2 <- rep(NA, length(R2_constr))
+      gamma_mat <- matrix(NA, nrow = ncol(mu_u_dt), ncol = length(R2_constr))
+      cat("Calibrating with R2_constr = ")
+      for (i in 1:length(R2_constr)) {
+        cat(R2_constr[i], " ")
         gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
-                                   penalty_weight = penalty_weight[i], ...)
+                                   R2_constr = R2_constr[i])#, ...)
         cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
         R2[i] <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
-        gamma[,i] <- gamma_opt
+        gamma_mat[,i] <- gamma_opt
       }
       cat("\n")
       est_df <- data.frame(cbind(mu_y_dt, cali))
       colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
-      colnames(gamma) <- colnames(est_df)[-1]
-      list(est_df = est_df, R2 = R2, gamma = gamma)
+      colnames(gamma_mat) <- colnames(est_df)[-1]
+      list(est_df = est_df, R2 = R2, gamma = gamma_mat)
     } else if (calitype == "null" & is.null(gamma) == FALSE) {
       # eq (33) in terms of d = gamma #
       message("User-specified calibration executed.")
