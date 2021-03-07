@@ -10,7 +10,8 @@ get_opt_gamma(
   cov_u_t,
   sigma_y_t,
   R2_constr = 1,
-  normtype = "L2"
+  normtype = "L2",
+  ...
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ By default, the L2 norm will be applied.\cr
 "L1" - apply the L1 norm, \code{sum(abs(x))}. \cr
 "L2" - apply the L2 norm, \code{sqrt(sum(x^2))}.\cr
 "Inf" - apply the infinity norm, \code{max(abs(x))}. \cr}
+
+\item{...}{further arguments passed to \code{\link{CVXR::solve}}}
 
 \item{penalty_weight}{scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.}
 
