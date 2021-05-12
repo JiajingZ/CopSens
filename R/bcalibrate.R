@@ -82,7 +82,7 @@ bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
       R2 <- rep(NA, nrow(gamma))
       for (i in 1:nrow(gamma)) {
         cat("gamma = ", gamma[i,], "\n", "calibrating observation ")
-        cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma[i,], mu_u_tr, mu_u_t, mu_y_t)#, ...)
+        cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma[i,], mu_u_tr, mu_u_t, mu_y_t, ...)
         R2[i] <- c(t(gamma[i,]) %*% cov_u_t %*% gamma[i,])
         cat("\n")
       }
