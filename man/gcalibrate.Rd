@@ -17,6 +17,7 @@ gcalibrate(
   R2 = 1,
   gamma = NULL,
   R2_constr = 1,
+  nc_index = NULL,
   ...
 )
 }
@@ -55,6 +56,9 @@ treatment that can be explained by confounders.}
 \item{R2_constr}{an optional scalar or vector specifying the upper limit constraint on \eqn{R^2} .
 By default, \code{R2_constr = 1}.}
 
+\item{nc_index}{an optional vector containing indexes of negative control treatments. If not \code{NULL},
+worstcase calibration will be executed with constraints imposed by negative control treatments.}
+
 \item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
 \code{\link{get_opt_gamma}}.}
 }
@@ -67,7 +71,7 @@ By default, \code{R2_constr = 1}.}
   If \code{calitype = "multicali"}, optimized gamma are in columns,
   respectively resulting in estimates in columns of \code{est_df}.
   If \code{calitype = "worstcase"}, gamma are in rows,
-  which respectively lead to the worstcase ignorance region for each contrast of interest.}
+  which respectively lead to the worstcase ignorance region with \eqn{R^2=1} for each contrast of interest.}
   \item{\code{rv}}{a \code{numeric vector} returned when \code{calitype = "worstcase"},
   with elements being the robustness value or \code{NA} if the ignorance region doesn't
   contains 0 for each contrast of interest.}
@@ -85,9 +89,16 @@ y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 
 # worst-case calibration #
-est_g1 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
+t1 <- data.frame(diag(ncol(tr)))
+t2 <- data.frame(matrix(0, nrow = ncol(tr), ncol = ncol(tr)))
+colnames(t1) = colnames(t2) <- colnames(tr)
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
                      calitype = "worstcase", R2 = c(0.3, 1))
 plot_estimates(est_g1)
+# with negative conotrls #
+est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
+                        calitype = "worstcase", R2 = c(0.3, 1), nc_index = c(3, 6))
+plot_estimates(est_g1_nc)
 
 # multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],

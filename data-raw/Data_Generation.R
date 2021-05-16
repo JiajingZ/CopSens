@@ -1,9 +1,23 @@
 # Generating data with Gaussian-Gaussian Linear Model #
+# k <- 10
+# s <- 3
+# set.seed(123)
+# B <- rstiefel::rustiefel(10, 3) %*% diag(c(2, -1, 0.5))
+# tau <- runif(k, min = -1, max = 1)
+# gamma <- 5 * svd(B)$v[, 1] + 1.5 * svd(B)$v[, 2]
+# sigma2_t <- 0.75
+# sigma2_y <- 0.2
+# Generating data with Gaussian-Gaussian Linear Model #
 k <- 10
 s <- 3
 set.seed(123)
 B <- rstiefel::rustiefel(10, 3) %*% diag(c(2, -1, 0.5))
+B[4,] <- - B[3,]
+B[7,] <- B[6,]
+B[5,] <- 0.5*B[3,]+0.5*B[6,]
+B[8,] <- rstiefel::NullC(t(B[c(3,6),]))
 tau <- runif(k, min = -1, max = 1)
+tau[c(3,6)] <- 0
 gamma <- 5 * svd(B)$v[, 1] + 1.5 * svd(B)$v[, 2]
 sigma2_t <- 0.75
 sigma2_y <- 0.2

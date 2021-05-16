@@ -24,4 +24,5 @@ Depends:
 Imports:
     pcaMethods (>= 1.78.0),
     ungeviz (>= 0.1.0),
-    CVXR (>= 1.0)
+    CVXR (>= 1.0),
+    MASS (>= 7.3-53)
