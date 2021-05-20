@@ -159,9 +159,9 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
         list(est_df = data.frame(est_df), R2 =  R2_min_nc, gamma = gamma_nc)
 
       } else {
-        bias_ncperp <- ((mu_u_dt %*% cov_halfinv %*% (diag(ncol(mu_u_dt))-M_c_inv%*%M_c)) %>%
+        bias_ncperp <- sigma_y_t * ((mu_u_dt %*% cov_halfinv %*% (diag(ncol(mu_u_dt))-M_c_inv%*%M_c)) %>%
                           apply(1, function(x) sqrt(sum(x^2)))) %o%
-          (rep(sqrt(R2-R2_min_nc),each=2)*rep(c(-1,1),2))
+          (rep(sqrt(R2-R2_min_nc),each=2)*rep(c(-1,1),length(R2)))
         ate_cali <- matrix(mu_y_dt-bias_nc,ncol=2*length(R2),nrow=length(mu_y_dt)) +
           bias_ncperp
         est_df <- cbind(mu_y_dt-bias_nc, ate_cali)
