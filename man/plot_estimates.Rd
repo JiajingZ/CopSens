@@ -4,7 +4,14 @@
 \alias{plot_estimates}
 \title{Visualize Estimates of Treatment Effects}
 \usage{
-plot_estimates(est, show_rv = TRUE, order = "naive", labels = NULL, ...)
+plot_estimates(
+  est,
+  show_rv = TRUE,
+  order = "naive",
+  labels = NULL,
+  R2 = NULL,
+  ...
+)
 }
 \arguments{
 \item{est}{an return object from \code{\link{gcalibrate}} or \code{\link{bcalibrate}}, or
@@ -23,6 +30,9 @@ treatments by the upper bound of the worst-case ignorance region from smallest t
 within the positive robust group, order treatments by the lower bound of the worst-case ignorance
 region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 smallest to largest.}
+
+\item{R2}{an optional scalar or vector indicating the partial \eqn{R^2_{Y \sim U \mid T}} used for
+calibrated estimates.}
 
 \item{...}{further arguments passed to \code{\link{ggplot::theme}}}
 

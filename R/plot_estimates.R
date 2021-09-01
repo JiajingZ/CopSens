@@ -16,6 +16,8 @@
 #' region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 #' smallest to largest.
 #' @param labeles character. Labels of treatments.
+#' @param R2 an optional scalar or vector indicating the partial \eqn{R^2_{Y \sim U \mid T}} used for
+#' calibrated estimates.
 #' @param ... further arguments passed to \code{\link{ggplot::theme}}
 #'
 #'
@@ -25,7 +27,8 @@
 #' Please see \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
 
 plot_estimates <- function(est, show_rv = TRUE,
-                           order = "naive", labels = NULL, ...) {
+                           order = "naive", labels = NULL,
+                           R2 = NULL,...) {
 
   getstr = function(mystring, initial.character, final.character)
   {
@@ -61,11 +64,15 @@ plot_estimates <- function(est, show_rv = TRUE,
 
   if(is.list(est) & (!is.data.frame(est))) {
     est_df <- est$est_df
-    R2 <- round(c(0, sort(est$R2)), 2)
+    if(is.null(R2)){
+      R2 <- round(c(0, sort(est$R2)), 2)
+    }
   } else if (is.data.frame(est)){
     est_df <- est
-    R2 <- c(0, getstr(colnames(est)[-1], '_', '_')) %>%
-      sort() %>% round(2)
+    if(is.null(R2)){
+      R2 <- c(0, getstr(colnames(est)[-1], '_', '_')) %>%
+        sort() %>% round(2)
+    }
   }
 
 
