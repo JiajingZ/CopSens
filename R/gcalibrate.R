@@ -29,7 +29,7 @@
 #' By default, \code{R2_constr = 1}.
 #' @param nc_index an optional vector containing indexes of negative control treatments. If not \code{NULL},
 #' worstcase calibration will be executed with constraints imposed by negative control treatments.
-#' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
+#' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{stats::factanal}} or
 #' \code{\link{get_opt_gamma}}.
 #'
 #' @return \code{gcalibrate} returns a list containing the following components:
@@ -88,19 +88,29 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
                       R2_constr = 1, nc_index = NULL, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
-    message("Fitting the latent confounder model by PPCA with default.")
+    message("Fitting the latent confounder model by factanal with default.")
     ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
-    ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
-                               nPcs = ut_cv$bestNPcs, ...)
-    W = pcaMethods::loadings(ut_ppca)
-    tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
-    sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
-    ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
+    # ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
+    #                            nPcs = ut_cv$bestNPcs, ...)
+    # W = pcaMethods::loadings(ut_ppca)
+    # tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
+    # sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
+    # ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
+    # if (is.null(cov_u_t)) {
+    #   cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(ut_cv$bestNPcs))
+    # }
+    # if (is.null(mu_u_dt)) {
+    #   mu_u_dt <- predict(ut_ppca, newdata = t1)$scores - predict(ut_ppca, newdata = t2)$scores
+    # }
+    ut_factanal <- factanal(tr, factors = ut_cv$bestNPcs, ...)
+    B_hat <- ut_factanal$loadings
+    Lambda_hat <- diag(ut_factanal$uniquenesses)
     if (is.null(cov_u_t)) {
-      cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(ut_cv$bestNPcs))
+      cov_u_t <- diag(ut_cv$bestNPcs) -
+        t(B_hat) %*% solve(B_hat %*% t(B_hat)+Lambda_hat) %*% B_hat
     }
     if (is.null(mu_u_dt)) {
-      mu_u_dt <- predict(ut_ppca, newdata = t1)$scores - predict(ut_ppca, newdata = t2)$scores
+      mu_u_dt <- as.matrix(t1 - t2) %*% solve(B_hat %*% t(B_hat)+Lambda_hat) %*% B_hat
     }
   }
   if (ncol(mu_u_dt) == 1) {

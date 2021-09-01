@@ -59,7 +59,7 @@ By default, \code{R2_constr = 1}.}
 \item{nc_index}{an optional vector containing indexes of negative control treatments. If not \code{NULL},
 worstcase calibration will be executed with constraints imposed by negative control treatments.}
 
-\item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
+\item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{stats::factanal}} or
 \code{\link{get_opt_gamma}}.}
 }
 \value{
