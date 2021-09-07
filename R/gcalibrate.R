@@ -86,7 +86,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
                       mu_u_dt = NULL, cov_u_t = NULL,
                       R2 = 1, gamma = NULL,
                       R2_constr = 1, nc_index = NULL, ...) {
-  # by default, fitting latent confounder model by PPCA #
+  # by default, fitting latent confounder model by factor analysis #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by factanal with default.")
     ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
