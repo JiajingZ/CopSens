@@ -20,16 +20,24 @@
 #' @param mu_u_t an optional matrix of conditional confounder means for treatments of interest
 #' with latent variables in columns.
 #' @param cov_u_t an optional covariance matrix of confounders conditional on treatments.
+#' @param nU Number of latent confounders to consider.
 #' @param nsim an optional scalar specifying the number of sample draws.
-#' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}} or \code{\link{pcaMethods::pca}}.
+#' @param ... further arguments passed to \code{\link{kEstimate}}or \code{\link{pca}}.
 #'
 #'
 #' @return A \code{data.frame} with naive and calibrated estimates of population average outcome receiving
 #' treatment \code{t}.
 #'
+#' @importFrom stats predict
+#' @importFrom stats glm
+#' @importFrom stats binomial
+#'
+#' @import tidyverse
+#'
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # load the example data #
 #' y <- GaussianT_BinaryY$y
 #' tr <- subset(GaussianT_BinaryY, select = -c(y))
@@ -37,26 +45,31 @@
 #' t2 <- rep(0, times = ncol(tr))
 #' # calibration #
 #' est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-#'                     gamma = c(1.27, -0.28, 0),
+#'                     nU = 3, gamma = c(1.27, -0.28, 0),
 #'                     R2 = c(0.2, 0.7))
-#' rr_df <- est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,])
-#' plot_estimates(rr_df)
+#' est_b_rr <- list(est_df = est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,]),
+#'                  R2 = c(0.2, 0.7))
+#' plot_estimates(est_b_rr)
+#' }
 
 
 bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
                        mu_u_tr = NULL, mu_u_t = NULL, cov_u_t = NULL,
-                       nsim = 4000, ...) {
+                       nU = NULL, nsim = 4000, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_tr) | is.null(mu_u_t) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by PPCA with default.")
-    ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+    if (is.null(nU)) {
+      ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+      nU <- ut_cv$bestNPcs
+    }
     ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
-                               nPcs = ut_cv$bestNPcs, ...)
+                               nPcs = nU, ...)
     W <- pcaMethods::loadings(ut_ppca)
     tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
     sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
     ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
-    cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(ut_cv$bestNPcs))
+    cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(nU))
     mu_u_tr <- predict(ut_ppca, newdata = tr)$scores
     mu_u_t <- predict(ut_ppca, newdata = t)$scores
   }
@@ -71,7 +84,7 @@ bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
     for (i in 1:length(R2)) {
       gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
       cat("R2 = ", R2[i] , ", calibrating observation ")
-      cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t)#, ...)
+      cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t, ...)
       cat("\n")
       }
     # est_df <- data.frame(cbind(mu_y_t, cali))

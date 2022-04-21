@@ -22,6 +22,7 @@
 #' @param mu_u_dt an optional matrix of difference in conditional confounder means, \eqn{E(U \mid t1) - E(U \mid t2)},
 #' with latent variables in columns.
 #' @param cov_u_t an optional covariance matrix of confounders conditional on treatments.
+#' @param nU Number of latent confounders to consider.
 #' @param R2 an optional scalar or vector specifying the proportion of residual variance in outcome given the
 #' treatment that can be explained by confounders.
 #' @param gamma sensitivity parameter vector. Must be given when \code{calitype = "null"}.
@@ -29,7 +30,7 @@
 #' By default, \code{R2_constr = 1}.
 #' @param nc_index an optional vector containing indexes of negative control treatments. If not \code{NULL},
 #' worstcase calibration will be executed with constraints imposed by negative control treatments.
-#' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
+#' @param ... further arguments passed to \code{\link{kEstimate}}, \code{\link{pca}} or
 #' \code{\link{get_opt_gamma}}.
 #'
 #' @return \code{gcalibrate} returns a list containing the following components:
@@ -48,6 +49,8 @@
 #
 #' @export
 #'
+#' @import tidyverse
+#'
 #' @examples
 #' # load the example data #
 #' y <- GaussianT_GaussianY$y
@@ -57,47 +60,52 @@
 #' t1 <- data.frame(diag(ncol(tr)))
 #' t2 <- data.frame(matrix(0, nrow = ncol(tr), ncol = ncol(tr)))
 #' colnames(t1) = colnames(t2) <- colnames(tr)
-#' est_g1 <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
+#' est_g1 <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2, nU = 3,
 #'                      calitype = "worstcase", R2 = c(0.3, 1))
 #' plot_estimates(est_g1)
 #' # with negative conotrls #
-#' est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
+#' est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2, nU = 3,
 #'                         calitype = "worstcase", R2 = c(0.3, 1), nc_index = c(3, 6))
 #' plot_estimates(est_g1_nc)
 #'
+#' \dontrun{
 #' # multivariate calibration #
-#' est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+#' est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,], nU = 3,
 #'                      calitype = "multicali", R2_constr = c(1, 0.15))
 #' plot_estimates(est_g2)
 #'
 #' # user-specified calibration #
 #' est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                      calitype = "null", gamma = c(0.96, -0.29, 0),
-#'                      R2 = c(0.2, 0.6, 1))
+#'                      nU = 3, calitype = "null",
+#'                      gamma = c(0.96, -0.29, 0), R2 = c(0.2, 0.6, 1))
 #' plot_estimates(est_g3)
 #' # apply gamma that maximizes the bias for the first contrast considered in est_g1 #
 #' est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-#'                      calitype = "null", gamma = est_g1$gamma[1,],
-#'                      R2 = c(0.2, 0.6, 1))
+#'                      nU = 3, calitype = "null",
+#'                      gamma = est_g1$gamma[1,], R2 = c(0.2, 0.6, 1))
 #' plot_estimates(est_g4)
+#' }
 
 gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "null"),
                       mu_y_dt = NULL, sigma_y_t = NULL,
-                      mu_u_dt = NULL, cov_u_t = NULL,
+                      mu_u_dt = NULL, cov_u_t = NULL, nU = NULL,
                       R2 = 1, gamma = NULL,
                       R2_constr = 1, nc_index = NULL, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by PPCA with default.")
-    ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+    if (is.null(nU)) {
+      ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+      nU <- ut_cv$bestNPcs
+    }
     ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
-                               nPcs = ut_cv$bestNPcs, ...)
+                               nPcs = nU, ...)
     W = pcaMethods::loadings(ut_ppca)
     tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
     sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
     ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
     if (is.null(cov_u_t)) {
-      cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(ut_cv$bestNPcs))
+      cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(nU))
     }
     if (is.null(mu_u_dt)) {
       mu_u_dt <- predict(ut_ppca, newdata = t1)$scores - predict(ut_ppca, newdata = t2)$scores

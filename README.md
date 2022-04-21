@@ -8,7 +8,7 @@
 
 `CopSens` implements the copula-based sensitivity analysis method, as
 discussed in [Copula-based Sensitivity Analysis for Multi-Treatment
-CausalInference with Unobserved
+Causal Inference with Unobserved
 Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula
 adopted in particular.
 
@@ -118,18 +118,19 @@ t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
 
 # calibrate #
-est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-                     gamma = c(1.27, -0.28, 0),
-                     R2 = c(0.2, 0.7))$est_df
+est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
+                    gamma = c(1.27, -0.28, 0),
+                    R2 = c(0.2, 0.7))
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple probit model with default.
 #> R2 =  0.2 , calibrating observation 1  2  3  4  5  6  
 #> R2 =  0.7 , calibrating observation 1  2  3  4  5  6
 # calculate risk ratio estimator #
-rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
+est_b_rr <- list(est_df = est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,]),
+                 R2 = c(0.2, 0.7))
 # visualize #
-plot_estimates(rr_df)
+plot_estimates(est_b_rr)
 ```
 
 <img src="man/figures/README-binary-outcome-example-1.png" width="85%" style="display: block; margin: auto;" />

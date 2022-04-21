@@ -14,6 +14,7 @@ gcalibrate(
   sigma_y_t = NULL,
   mu_u_dt = NULL,
   cov_u_t = NULL,
+  nU = NULL,
   R2 = 1,
   gamma = NULL,
   R2_constr = 1,
@@ -48,6 +49,8 @@ with latent variables in columns.}
 
 \item{cov_u_t}{an optional covariance matrix of confounders conditional on treatments.}
 
+\item{nU}{Number of latent confounders to consider.}
+
 \item{R2}{an optional scalar or vector specifying the proportion of residual variance in outcome given the
 treatment that can be explained by confounders.}
 
@@ -59,7 +62,7 @@ By default, \code{R2_constr = 1}.}
 \item{nc_index}{an optional vector containing indexes of negative control treatments. If not \code{NULL},
 worstcase calibration will be executed with constraints imposed by negative control treatments.}
 
-\item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}} or
+\item{...}{further arguments passed to \code{\link{kEstimate}}, \code{\link{pca}} or
 \code{\link{get_opt_gamma}}.}
 }
 \value{
@@ -92,27 +95,29 @@ tr <- subset(GaussianT_GaussianY, select = -c(y))
 t1 <- data.frame(diag(ncol(tr)))
 t2 <- data.frame(matrix(0, nrow = ncol(tr), ncol = ncol(tr)))
 colnames(t1) = colnames(t2) <- colnames(tr)
-est_g1 <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
+est_g1 <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2, nU = 3,
                      calitype = "worstcase", R2 = c(0.3, 1))
 plot_estimates(est_g1)
 # with negative conotrls #
-est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2,
+est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2, nU = 3,
                         calitype = "worstcase", R2 = c(0.3, 1), nc_index = c(3, 6))
 plot_estimates(est_g1_nc)
 
+\dontrun{
 # multivariate calibration #
-est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
+est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,], nU = 3,
                      calitype = "multicali", R2_constr = c(1, 0.15))
 plot_estimates(est_g2)
 
 # user-specified calibration #
 est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                     calitype = "null", gamma = c(0.96, -0.29, 0),
-                     R2 = c(0.2, 0.6, 1))
+                     nU = 3, calitype = "null",
+                     gamma = c(0.96, -0.29, 0), R2 = c(0.2, 0.6, 1))
 plot_estimates(est_g3)
 # apply gamma that maximizes the bias for the first contrast considered in est_g1 #
 est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
-                     calitype = "null", gamma = est_g1$gamma[1,],
-                     R2 = c(0.2, 0.6, 1))
+                     nU = 3, calitype = "null",
+                     gamma = est_g1$gamma[1,], R2 = c(0.2, 0.6, 1))
 plot_estimates(est_g4)
+}
 }

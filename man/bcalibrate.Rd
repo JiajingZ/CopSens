@@ -14,6 +14,7 @@ bcalibrate(
   mu_u_tr = NULL,
   mu_u_t = NULL,
   cov_u_t = NULL,
+  nU = NULL,
   nsim = 4000,
   ...
 )
@@ -43,9 +44,11 @@ with latent variables in columns.}
 
 \item{cov_u_t}{an optional covariance matrix of confounders conditional on treatments.}
 
+\item{nU}{Number of latent confounders to consider.}
+
 \item{nsim}{an optional scalar specifying the number of sample draws.}
 
-\item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}} or \code{\link{pcaMethods::pca}}.}
+\item{...}{further arguments passed to \code{\link{kEstimate}}or \code{\link{pca}}.}
 }
 \value{
 A \code{data.frame} with naive and calibrated estimates of population average outcome receiving
@@ -58,6 +61,7 @@ with our pre-provided calibration methods, the worst-case calibration for a sing
 or multivariate calibration for multiple contrasts.
 }
 \examples{
+\dontrun{
 # load the example data #
 y <- GaussianT_BinaryY$y
 tr <- subset(GaussianT_BinaryY, select = -c(y))
@@ -65,8 +69,10 @@ t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
 # calibration #
 est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-                    gamma = c(1.27, -0.28, 0),
+                    nU = 3, gamma = c(1.27, -0.28, 0),
                     R2 = c(0.2, 0.7))
-rr_df <- est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,])
-plot_estimates(rr_df)
+est_b_rr <- list(est_df = est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,]),
+                 R2 = c(0.2, 0.7))
+plot_estimates(est_b_rr)
+}
 }

@@ -15,17 +15,31 @@
 #' within the positive robust group, order treatments by the lower bound of the worst-case ignorance
 #' region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 #' smallest to largest.
-#' @param labeles character. Labels of treatments.
-#' @param ... further arguments passed to \code{\link{ggplot::theme}}
+#' @param labels character. Labels of treatments.
+#' @param ... further arguments passed to \code{\link{theme}}
 #'
 #'
 #' @export
 #'
-#' @examples
-#' Please see \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
+#' @importFrom tidyr gather
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_segment
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 scale_colour_viridis_d
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 annotate
+#' @importFrom ggplot2 theme
+#'
+#'
+#' @section Note:
+#' For examples, please refer to \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
 
 plot_estimates <- function(est, show_rv = TRUE,
                            order = "naive", labels = NULL, ...) {
+
+  x1<-y1<-x2<-y2<-effect<-Type<-NULL
 
   getstr = function(mystring, initial.character, final.character)
   {
@@ -70,8 +84,9 @@ plot_estimates <- function(est, show_rv = TRUE,
 
 
   case <- 1:nrow(est_df)
-  if(is.null(labels))
+  if(is.null(labels)) {
     labels <- case
+  }
 
   ## order according to naive estimates
   ord <- case
@@ -110,8 +125,11 @@ plot_estimates <- function(est, show_rv = TRUE,
       gather(key = "Type", value = "effect", - case)
   }
 
+  df$x1 = df$case -  0.003*length(df$case)
+  df$x2 = df$case +  0.003*length(df$case)
+
   plot <- ggplot(df) +
-    ungeviz::geom_hpline(aes(x = case, y = effect, col = Type), width = 0.025*length(case), size = 1.5)  +
+    geom_segment(aes(x=x1,y=effect,xend=x2,yend=effect, col = Type), size = 1.5) +
     geom_segment(data = bound_df, aes(x=x1,y=y1,xend=x2,yend=y2), size = 0.3) +
     labs(y = "Causal Effect", x = "Treatment Contrast") +
     scale_x_continuous(breaks = unique(case), labels = labels,

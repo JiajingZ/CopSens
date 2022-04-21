@@ -13,33 +13,44 @@
 #' @param mu_u_dt an optional matrix of difference in conditional confounder means, \eqn{E(U \mid t1) - E(U \mid t2)},
 #' with latent variables in columns.
 #' @param cov_u_t an optional covariance matrix of confounders conditional on treatments.
-#' @param ... further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}}
+#' @param nU Number of latent confounders to consider.
+#' @param ... further arguments passed to \code{\link{kEstimate}}, \code{\link{pca}}
 #'
 #' @return A \code{numeric vector} with elements being the robustness value or \code{NA} if the ignorance region doesn't
 #' contains 0 for each contrast of interest.
+#'
+#' @importFrom stats lm
+#' @importFrom stats sigma
+#' @importFrom dplyr %>%
+#'
 #' @export
 #' @examples
+#' \dontrun{
 #' # load the example data #
 #' y <- GaussianT_GaussianY$y
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))
 #' # calculate robustness value #
 #' cal_rv(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,])
-#'
+#'}
+
 cal_rv <- function(y, tr, t1, t2,
                    mu_y_dt = NULL, sigma_y_t = NULL,
-                   mu_u_dt = NULL, cov_u_t = NULL, ...) {
+                   mu_u_dt = NULL, cov_u_t = NULL, nU = NULL, ...) {
   # by default, fitting latent confounder model by PPCA #
   if (is.null(mu_u_dt) | is.null(cov_u_t)) {
     message("Fitting the latent confounder model by PPCA with default.")
-    ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+    if (is.null(nU)) {
+      ut_cv <- pcaMethods::kEstimate(tr, method = "ppca", allVariables = TRUE, ...)
+      nU <- ut_cv$bestNPcs
+    }
     ut_ppca <- pcaMethods::pca(tr, method = "ppca", center = TRUE,
-                               nPcs = ut_cv$bestNPcs, ...)
+                               nPcs = nU, ...)
     W = pcaMethods::loadings(ut_ppca)
     tr_hat <- pcaMethods::scores(ut_ppca) %*% t(W)
     sig2est <- sum((tr - tr_hat)^2)/(nrow(tr)*ncol(tr))
     ## cov(U|t) = sigma2*M^{-1}, M = W'W+ sigma2*I
     if (is.null(cov_u_t)) {
-      cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(ut_cv$bestNPcs))
+      cov_u_t <- sig2est * solve(t(W) %*% W + sig2est*diag(nU))
     }
     if (is.null(mu_u_dt)) {
       mu_u_dt <- predict(ut_ppca, newdata = t1)$scores - predict(ut_ppca, newdata = t2)$scores

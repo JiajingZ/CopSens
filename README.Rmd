@@ -12,14 +12,18 @@ knitr::opts_chunk$set(
   out.width = "85%",
   fig.align = "center"
 )
+library(tidyverse)
 ```
+
+
+
 
 # CopSens
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-`CopSens` implements the copula-based sensitivity analysis method, as discussed in [Copula-based Sensitivity Analysis for Multi-Treatment CausalInference with Unobserved Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula adopted in particular.
+`CopSens` implements the copula-based sensitivity analysis method, as discussed in [Copula-based Sensitivity Analysis for Multi-Treatment Causal Inference with Unobserved Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula adopted in particular.
 
 
 ## Installation
@@ -92,13 +96,14 @@ t1 <- tr[1:5,]
 t2 <- rep(0, times = ncol(tr))
 
 # calibrate #
-est_df <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
-                     gamma = c(1.27, -0.28, 0),
-                     R2 = c(0.2, 0.7))$est_df
+est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
+                    gamma = c(1.27, -0.28, 0),
+                    R2 = c(0.2, 0.7))
 # calculate risk ratio estimator #
-rr_df <- est_df[1:5,] / as.numeric(est_df[6,])
+est_b_rr <- list(est_df = est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,]),
+                 R2 = c(0.2, 0.7))
 # visualize #
-plot_estimates(rr_df)
+plot_estimates(est_b_rr)
 ```
 
 ## Implementation To a Mouse Obesity Study

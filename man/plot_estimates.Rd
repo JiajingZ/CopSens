@@ -24,13 +24,15 @@ within the positive robust group, order treatments by the lower bound of the wor
 region from smallest to largest; and within the sensitive group, order by  the naive estimate from
 smallest to largest.}
 
-\item{...}{further arguments passed to \code{\link{ggplot::theme}}}
+\item{labels}{character. Labels of treatments.}
 
-\item{labeles}{character. Labels of treatments.}
+\item{...}{further arguments passed to \code{\link{theme}}}
 }
 \description{
 Visualize Estimates of Treatment Effects
 }
-\examples{
-Please see \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
+\section{Note}{
+
+For examples, please refer to \code{\link{bcalibrate}} or \code{\link{gcalibrate}}
 }
+

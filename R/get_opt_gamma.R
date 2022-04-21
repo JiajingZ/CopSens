@@ -6,15 +6,14 @@
 #' with latent variables in columns.
 #' @param cov_u_t Covariance matrix of confounders conditional on treatments.
 #' @param sigma_y_t Scalar of the standard deviation of outcome conditional on treatments.
-#' @param penalty_weight scalar specifying the penalty weight for \eqn{R^2} to put on its magnitude.
-#' @param gamma0 An optional vector with initial values of the sensitivity parameters to be optimized over.
-#' @param n_iter Number of times of optimization to execute.
+#' @param R2_constr an optional scalar or vector specifying the upper limit constraint on \eqn{R^2} .
+#' By default, \code{R2_constr = 1}.
 #' @param normtype character. Optional function \code{m} for the multivariate calibration criterion.
 #' By default, the L2 norm will be applied.\cr
 #' "L1" - apply the L1 norm, \code{sum(abs(x))}. \cr
 #' "L2" - apply the L2 norm, \code{sqrt(sum(x^2))}.\cr
 #' "Inf" - apply the infinity norm, \code{max(abs(x))}. \cr
-#' @param ... further arguments passed to \code{\link{CVXR::solve}}
+#' @param ... further arguments passed to \code{\link{solve}}
 #'
 #' @return Optimized sensitivity parameters.
 #'

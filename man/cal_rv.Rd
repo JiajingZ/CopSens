@@ -13,6 +13,7 @@ cal_rv(
   sigma_y_t = NULL,
   mu_u_dt = NULL,
   cov_u_t = NULL,
+  nU = NULL,
   ...
 )
 }
@@ -38,7 +39,9 @@ with latent variables in columns.}
 
 \item{cov_u_t}{an optional covariance matrix of confounders conditional on treatments.}
 
-\item{...}{further arguments passed to \code{\link{pcaMethods::kEstimate}}, \code{\link{pcaMethods::pca}}}
+\item{nU}{Number of latent confounders to consider.}
+
+\item{...}{further arguments passed to \code{\link{kEstimate}}, \code{\link{pca}}}
 }
 \value{
 A \code{numeric vector} with elements being the robustness value or \code{NA} if the ignorance region doesn't
@@ -48,10 +51,11 @@ contains 0 for each contrast of interest.
 Calculate Robustness Value When Executing Worstcase Calibration
 }
 \examples{
+\dontrun{
 # load the example data #
 y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))
 # calculate robustness value #
 cal_rv(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,])
-
+}
 }
