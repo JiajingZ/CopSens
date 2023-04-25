@@ -103,7 +103,7 @@ est_g1_nc <- gcalibrate(y = y, tr = tr, t1 = t1, t2 = t2, nU = 3,
                         calitype = "worstcase", R2 = c(0.3, 1), nc_index = c(3, 6))
 plot_estimates(est_g1_nc)
 
-\dontrun{
+\donttest{
 # multivariate calibration #
 est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,], nU = 3,
                      calitype = "multicali", R2_constr = c(1, 0.15))

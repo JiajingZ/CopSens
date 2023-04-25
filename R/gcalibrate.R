@@ -68,7 +68,7 @@
 #'                         calitype = "worstcase", R2 = c(0.3, 1), nc_index = c(3, 6))
 #' plot_estimates(est_g1_nc)
 #'
-#' \dontrun{
+#' \donttest{
 #' # multivariate calibration #
 #' est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,], nU = 3,
 #'                      calitype = "multicali", R2_constr = c(1, 0.15))
@@ -161,7 +161,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
 
       if(ncol(MASS::Null(t(M_c))) == 0){
 
-        cat("PATEs are identifiable.")
+        message("PATEs are identifiable.")
         est_df <- cbind(mu_y_dt, mu_y_dt-bias_nc)
         colnames(est_df) <- paste0("R2_",c(0, R2_min_nc))
         list(est_df = data.frame(est_df), R2 =  R2_min_nc, gamma = gamma_nc)
@@ -195,16 +195,16 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       cali <- matrix(NA, nrow = length(mu_y_dt), ncol = length(R2_constr))
       R2 <- rep(NA, length(R2_constr))
       gamma_mat <- matrix(NA, nrow = ncol(mu_u_dt), ncol = length(R2_constr))
-      cat("Calibrating with R2_constr = ")
+      message("Calibrating with R2_constr = ")
       for (i in 1:length(R2_constr)) {
-        cat(R2_constr[i], " ")
+        message(R2_constr[i], " ")
         gamma_opt <- get_opt_gamma(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
                                    R2_constr = R2_constr[i], ...)
         cali[,i] <- mu_y_dt - mu_u_dt %*% gamma_opt
         R2[i] <- t(gamma_opt) %*% cov_u_t %*% gamma_opt / sigma_y_t^2
         gamma_mat[,i] <- gamma_opt
       }
-      cat("\n")
+      message("\n")
       est_df <- data.frame(cbind(mu_y_dt, cali))
       colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
       colnames(gamma_mat) <- colnames(est_df)[-1]
@@ -216,7 +216,7 @@ gcalibrate <- function(y, tr, t1, t2, calitype = c("worstcase", "multicali", "nu
       for (i in 1:length(R2)) {
         cali[,i] <- mu_y_dt - sqrt(R2[i]) * sigma_y_t * mu_u_dt %*% cov_halfinv %*% gamma
       }
-      cat("\n")
+      message("\n")
       est_df <- data.frame(cbind(mu_y_dt, cali))
       colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
       list(est_df = est_df, R2 = R2)

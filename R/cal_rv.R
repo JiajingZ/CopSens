@@ -25,7 +25,7 @@
 #'
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # load the example data #
 #' y <- GaussianT_GaussianY$y
 #' tr <- subset(GaussianT_GaussianY, select = -c(y))

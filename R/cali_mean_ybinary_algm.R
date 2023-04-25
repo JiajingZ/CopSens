@@ -16,7 +16,7 @@
 #' @importFrom stats pnorm
 #'
 cali_mean_ybinary_algm <- function(i, gamma, mu_u_tr, mu_u_t, mu_y_t, nsim = 4000) {
-  cat(i, " ")
+  message(i, " ")
   mu_i <- c((mu_u_tr - mu_u_t[i,]) %*% gamma)
   ytilde_samples <- rnorm(n = nrow(mu_u_tr) * nsim, mean = mu_i, sd = 1)
   y_samples <- ifelse(pnorm(ytilde_samples) > 1 - mu_y_t[i], 1, 0)

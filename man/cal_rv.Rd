@@ -51,7 +51,7 @@ contains 0 for each contrast of interest.
 Calculate Robustness Value When Executing Worstcase Calibration
 }
 \examples{
-\dontrun{
+\donttest{
 # load the example data #
 y <- GaussianT_GaussianY$y
 tr <- subset(GaussianT_GaussianY, select = -c(y))

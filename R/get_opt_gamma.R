@@ -13,24 +13,32 @@
 #' "L1" - apply the L1 norm, \code{sum(abs(x))}. \cr
 #' "L2" - apply the L2 norm, \code{sqrt(sum(x^2))}.\cr
 #' "Inf" - apply the infinity norm, \code{max(abs(x))}. \cr
+#' @param idx A zero-one vector with 1 in the i-th coordinate if the i-th outcome to be applied with the MCC
+#' calibration over, otherwise 0.
 #' @param ... further arguments passed to \code{\link{solve}}
 #'
 #' @return Optimized sensitivity parameters.
 #'
 
 get_opt_gamma <- function(mu_y_dt, mu_u_dt, cov_u_t, sigma_y_t,
-                          R2_constr = 1, normtype = "L2", ...) {
+                          R2_constr = 1, normtype = "L2",
+                          idx = NULL,...) {
 
     gamma <- CVXR::Variable(ncol(mu_u_dt))
+    if (is.null(idx)) {
+      idx <- rep(1, length(mu_y_dt))
+    }
     if (normtype == "L1") {
       # obj <- cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, 1)
-      obj <- sum(abs(mu_y_dt - mu_u_dt %*% gamma))
+      # obj <- sum(abs(mu_y_dt - mu_u_dt %*% gamma))
+      obj <- sum(abs(mu_y_dt - mu_u_dt %*% gamma) * idx)
     } else if (normtype == "L2") {
-      obj <- CVXR::cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, 2)
       # obj <- sqrt(sum((mu_y_dt - mu_u_dt %*% gamma)^2))
+      # obj <- CVXR::cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, 2)
+      obj <- CVXR::cvxr_norm((mu_y_dt - mu_u_dt %*% gamma) * idx, 2)
     } else if (normtype == "Inf") {
       # obj <- cvxr_norm(mu_y_dt - mu_u_dt %*% gamma, "inf")
-      obj <- max(abs(mu_y_dt - mu_u_dt %*% gamma))
+      obj <- max(abs(mu_y_dt - mu_u_dt %*% gamma) * idx)
     } else {stop("Please specify a norm type.")}
 
     constr <- list(CVXR::quad_form(gamma, cov_u_t/sigma_y_t^2) <= R2_constr)

@@ -11,6 +11,7 @@ get_opt_gamma(
   sigma_y_t,
   R2_constr = 1,
   normtype = "L2",
+  idx = NULL,
   ...
 )
 }
@@ -33,6 +34,9 @@ By default, the L2 norm will be applied.\cr
 "L1" - apply the L1 norm, \code{sum(abs(x))}. \cr
 "L2" - apply the L2 norm, \code{sqrt(sum(x^2))}.\cr
 "Inf" - apply the infinity norm, \code{max(abs(x))}. \cr}
+
+\item{idx}{A zero-one vector with 1 in the i-th coordinate if the i-th outcome to be applied with the MCC
+calibration over, otherwise 0.}
 
 \item{...}{further arguments passed to \code{\link{solve}}}
 }

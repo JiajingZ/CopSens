@@ -18,6 +18,8 @@
 #' @param labels character. Labels of treatments.
 #' @param ... further arguments passed to \code{\link{theme}}
 #'
+#' @return A graph plotting ignorance regions of the causal estimands of interest.
+#'
 #'
 #' @export
 #'

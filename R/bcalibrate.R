@@ -37,7 +37,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # load the example data #
 #' y <- GaussianT_BinaryY$y
 #' tr <- subset(GaussianT_BinaryY, select = -c(y))
@@ -83,9 +83,9 @@ bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
     cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(R2))
     for (i in 1:length(R2)) {
       gamma <- sqrt(R2[i]) * gamma / sqrt(c(t(gamma) %*% cov_u_t %*% gamma))
-      cat("R2 = ", R2[i] , ", calibrating observation ")
+      message("R2 = ", R2[i] , ", calibrating observation ")
       cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma, mu_u_tr, mu_u_t, mu_y_t, ...)
-      cat("\n")
+      message("\n")
       }
     # est_df <- data.frame(cbind(mu_y_t, cali))
     # colnames(est_df) <- paste0("R2_", round(c(0, R2), digits = 2))
@@ -94,10 +94,10 @@ bcalibrate <- function(y, tr, t, gamma, R2 = NULL, mu_y_t = NULL,
       cali <- matrix(NA, nrow = length(mu_y_t), ncol = length(gamma))
       R2 <- rep(NA, nrow(gamma))
       for (i in 1:nrow(gamma)) {
-        cat("gamma = ", gamma[i,], "\n", "calibrating observation ")
+        message("gamma = ", gamma[i,], "\n", "calibrating observation ")
         cali[,i] <- sapply(1:nrow(t), cali_mean_ybinary_algm, gamma[i,], mu_u_tr, mu_u_t, mu_y_t, ...)
         R2[i] <- c(t(gamma[i,]) %*% cov_u_t %*% gamma[i,])
-        cat("\n")
+        message("\n")
       }
     }
   est_df <- data.frame(cbind(mu_y_t, cali))

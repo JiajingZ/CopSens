@@ -7,9 +7,9 @@
 <!-- badges: end -->
 
 `CopSens` implements the copula-based sensitivity analysis method, as
-discussed in [Copula-based Sensitivity Analysis for Multi-Treatment
+discussed in [“Copula-based Sensitivity Analysis for Multi-Treatment
 Causal Inference with Unobserved
-Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula
+Confounding”](https://arxiv.org/abs/2102.09412), with Gaussian copula
 adopted in particular.
 
 ## Installation
@@ -71,7 +71,10 @@ est_g2 <- gcalibrate(y = y, tr = tr, t1 = tr[1:10,], t2 = tr[11:20,],
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> Multivariate calibration executed.
-#> Calibrating with R2_constr = 1  0.15
+#> Calibrating with R2_constr =
+#> 1
+#> 0.15
+#> 
 # visualize #
 plot_estimates(est_g2)
 ```
@@ -87,6 +90,7 @@ est_g3 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> User-specified calibration executed.
+#> 
 # visualize #
 plot_estimates(est_g3)
 ```
@@ -102,6 +106,7 @@ est_g4 <- gcalibrate(y = y, tr = tr, t1 = tr[1:2,], t2 = tr[3:4,],
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple linear regression with default.
 #> User-specified calibration executed.
+#> 
 # visualize #
 plot_estimates(est_g4)
 ```
@@ -124,8 +129,22 @@ est_b <- bcalibrate(y = y, tr = tr, t = rbind(t1, t2),
 #> Fitting the latent confounder model by PPCA with default.
 #> 1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:1:2:3:4:5:6:7:8:9:10:
 #> Observed outcome model fitted by simple probit model with default.
-#> R2 =  0.2 , calibrating observation 1  2  3  4  5  6  
-#> R2 =  0.7 , calibrating observation 1  2  3  4  5  6
+#> R2 = 0.2, calibrating observation
+#> 1
+#> 2
+#> 3
+#> 4
+#> 5
+#> 6
+#> 
+#> R2 = 0.7, calibrating observation
+#> 1
+#> 2
+#> 3
+#> 4
+#> 5
+#> 6
+#> 
 # calculate risk ratio estimator #
 est_b_rr <- list(est_df = est_b$est_df[1:5,] / as.numeric(est_b$est_df[6,]),
                  R2 = c(0.2, 0.7))
@@ -210,13 +229,17 @@ multcali_results_L1 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L1")
 #> Multivariate calibration executed.
-#> Calibrating with R2_constr = 1
+#> Calibrating with R2_constr =
+#> 1
+#> 
 # with L2 norm #
 multcali_results_L2 <- gcalibrate(y, tr, t1 = t1, t2 = t2, calitype = "multicali", 
                                   mu_y_dt = as.matrix(beta_t), sigma_y_t =  sigma_y_t_hat,
                                   mu_u_dt = u_t_diff, cov_u_t = cov_u_t_hat, normtype = "L2")
 #> Multivariate calibration executed.
-#> Calibrating with R2_constr = 1
+#> Calibrating with R2_constr =
+#> 1
+#> 
 ```
 
 Below, we visualize the analysis results. The Spearman’s rank

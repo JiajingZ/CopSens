@@ -28,6 +28,9 @@ smallest to largest.}
 
 \item{...}{further arguments passed to \code{\link{theme}}}
 }
+\value{
+A graph plotting ignorance regions of the causal estimands of interest.
+}
 \description{
 Visualize Estimates of Treatment Effects
 }

@@ -23,7 +23,7 @@ library(tidyverse)
 <!-- badges: start -->
 <!-- badges: end -->
 
-`CopSens` implements the copula-based sensitivity analysis method, as discussed in [Copula-based Sensitivity Analysis for Multi-Treatment Causal Inference with Unobserved Confounding](https://arxiv.org/abs/2102.09412), with Gaussian copula adopted in particular.
+`CopSens` implements the copula-based sensitivity analysis method, as discussed in ["Copula-based Sensitivity Analysis for Multi-Treatment Causal Inference with Unobserved Confounding"](https://arxiv.org/abs/2102.09412), with Gaussian copula adopted in particular.
 
 
 ## Installation

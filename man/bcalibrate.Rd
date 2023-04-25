@@ -61,7 +61,7 @@ with our pre-provided calibration methods, the worst-case calibration for a sing
 or multivariate calibration for multiple contrasts.
 }
 \examples{
-\dontrun{
+\donttest{
 # load the example data #
 y <- GaussianT_BinaryY$y
 tr <- subset(GaussianT_BinaryY, select = -c(y))
